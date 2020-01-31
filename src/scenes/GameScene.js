@@ -11,6 +11,16 @@ export default class GameScene extends Phaser.Scene {
         this.aim = null;
         this.pointerToggle = false;
         this.lockMovement = false;
+        this.selector = {
+            startX: 0,
+            startY: 0,
+            endX: 0,
+            endY: 0,
+            visible: false,
+        };
+
+        this.rect = null;
+        this.rectGraphics = null;
     }
 
     /**
@@ -52,9 +62,66 @@ export default class GameScene extends Phaser.Scene {
         // Set Player & Aim Properties
         this.aim.setOrigin(0.5, 0.5).setDisplaySize(15, 15).setCollideWorldBounds(true);
 
+
+
+
         this.input.on('pointermove', (pointer) => {
             this.aim.x = this.input.activePointer.worldX;
             this.aim.y = this.input.activePointer.worldY;
+
+            if (this.selector.visible) {
+                this.selector.endX = this.aim.x;
+                this.selector.endY = this.aim.y;
+
+                this.rect.setEmpty();
+
+                this.rect.setTo(
+                    this.selector.startX,
+                    this.selector.startY,
+                    this.selector.endX - this.selector.startX,
+                    this.selector.endY - this.selector.startY
+                );
+
+
+                this.rectGraphics.destroy();
+                this.rectGraphics = this.add.graphics();
+                this.rectGraphics.fillStyle(0xffffff, 0.1);
+                this.rectGraphics.lineStyle(2, 0xff0000, 1);
+                this.rectGraphics.fillRectShape(this.rect);
+                this.rectGraphics.strokeRectShape(this.rect);
+            }
+        }, this);
+
+        /*
+         * Selector for units
+         */
+
+        this.input.on('pointerdown', (pointer) => {
+            if (pointer.leftButtonDown()) {
+                this.rectGraphics = this.add.graphics();
+
+                this.selector.startX = this.aim.x;
+                this.selector.startY = this.aim.y;
+                this.selector.endX = 1;
+                this.selector.endY = 1;
+                this.selector.visible = true;
+
+                this.rect = new Phaser.Geom.Rectangle(
+                    this.selector.startX,
+                    this.selector.startY,
+                    0,
+                    0,
+                );
+            }
+        }, this);
+
+        this.input.on('pointerup', (pointer) => {
+            if (pointer.leftButtonReleased()) {
+                if (this.rect !== null) {
+                    this.selector.visible = false;
+                    this.rectGraphics.destroy();
+                }
+            }
         }, this);
     }
 
