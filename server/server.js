@@ -1,7 +1,7 @@
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 9000 });
 
-let gameData = [];
+let gameData = {};
 let gameCounter = 0;
 let playerCounter = 0;
 
@@ -20,19 +20,38 @@ wss.on('connection', function connection(ws) {
 
         if (msgObject.type == 'createGame') {
             gameCounter++;
-            gameData.push({
-                id: randomNumber() + '' + gameCounter,
-                name: msgObject.name,
-            });
+            let gameId = randomNumber() + '' + gameCounter;
 
-            sendToClient(ws, {type: 'createGame', id: gameCounter});
+            gameData[gameId] = {
+                name: msgObject.name,
+                players: {},
+                started: false,
+            };
+
+            sendToClient(ws, {type: 'createGame', id: gameId});
         } else if (msgObject.type == 'joinGame') {
             playerCounter++;
-            //add to gamedata
-            sendToClient(ws, {type: 'joinGame', gameId: msgObject.gameId, playerId: randomNumber() + '' + playerCounter});
+            let gameId = msgObject.gameId;
+            let playerId = randomNumber() + '' + playerCounter;
+
+            gameData[gameId].players[playerId] = {
+                name: msgObject.playerName
+            };
+            sendToClient(ws, {type: 'joinGame', gameId: gameId, playerId: playerId});
+        } else if (msgObject.type == 'listGames') {
+            let games = [];
+
+            for (let gameId in gameData) {
+                if(!gameData[gameId].started) {
+                    games.push({
+                        'id': gameId,
+                        'gameName': gameData[gameId].name,
+                    });
+                }
+            }
+
+            sendToClient(ws, {type: 'listGames', games: games});
         }
-
-
     }).on('close', function close() {
 
     });
