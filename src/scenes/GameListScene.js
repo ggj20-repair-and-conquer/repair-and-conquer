@@ -11,7 +11,7 @@ export default class GameListScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('txt_background', 'assets/buttons/btn_grey.png');
+        this.load.image('txt_background', 'assets/buttons/txt_background.png');
         this.load.image('btn_join', 'assets/buttons/btn_join.png');
         this.load.image('btn_back', 'assets/buttons/btn_back.png');
     }
@@ -50,27 +50,26 @@ export default class GameListScene extends Phaser.Scene {
         ];
         gridTable.setItems(games)
 
-        // socket.onmessage = function(msg) {
-        //   var obj = JSON.parse(msg.data);
+        socket.onmessage = function(msg) {
+          var obj = JSON.parse(msg.data);
 
-        //   if (obj.type == 'getGames') {
-        //     games = []
-        //     for (var gameKey in obj.data.games) {
-        //       games.push({
-        //         'id': gameKey,
-        //         'gameName': obj.data.games[gameKey].name,
-        //         'playerName': 'dom'
-        //       })
-        //     }
-        //     gridTable.setItems(games)
-        //   } else if (obj.type == 'joinGame') {
-        //     gameData.playerHash = obj.data.playerhash;
-        //     scene.start('GameLobby');
-        //   }
-        // }
+          if (obj.type == 'getGames') {
+            games = []
+            for (var gameKey in obj.data.games) {
+              games.push({
+                'id': gameKey,
+                'gameName': obj.data.games[gameKey].name,
+                'playerName': 'dom'
+              })
+            }
+            gridTable.setItems(games)
+          } else if (obj.type == 'joinGame') {
+            gameData.playerHash = obj.data.playerhash;
+            scene.start('GameLobby');
+          }
+        }
 
-        // socket.send(JSON.stringify({type: 'getGames'}));
-
+        socket.send(JSON.stringify({type: 'getGames'}));
 
         const btnBack = this.add.image(400, 750, 'btn_back');
         btnBack.setInteractive();
@@ -198,5 +197,5 @@ var createGrid = function (rexUI) {
             'name': playerName.text
         }
     });
-    //   socket.send(joinData);
+    socket.send(joinData);
 }

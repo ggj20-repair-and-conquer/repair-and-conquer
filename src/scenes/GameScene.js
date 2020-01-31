@@ -34,7 +34,6 @@ export default class GameScene extends Phaser.Scene {
         this.input.keyboard.on('keydown_SPACE', (event) => {
             this.lockMovement = !this.lockMovement;
         });
-
         // Map Tiles
         const mapScale = 2;
         const map = this.make.tilemap({ key: "map" });
@@ -56,7 +55,6 @@ export default class GameScene extends Phaser.Scene {
         this.input.on('pointermove', (pointer) => {
             this.aim.x = this.input.activePointer.worldX;
             this.aim.y = this.input.activePointer.worldY;
-
         }, this);
     }
 
