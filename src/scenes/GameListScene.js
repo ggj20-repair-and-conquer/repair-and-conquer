@@ -11,7 +11,7 @@ export default class GameListScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('txt_background', 'assets/buttons/btn_grey.png');
+        this.load.image('txt_background', 'assets/buttons/txt_background.png');
         this.load.image('btn_join', 'assets/buttons/btn_join.png');
         this.load.image('btn_back', 'assets/buttons/btn_back.png');
     }
