@@ -1,15 +1,11 @@
 import 'phaser'
 
-export default class GameScene extends Phase.Scene {
-
+export default class GameScene extends Phaser.Scene {
     constructor() {
         super('Game');
     }
 
     init() {
-        this.player;
-        this.players = new Array();
-        this.playersText = new Array();
     }
 
     /**
@@ -26,9 +22,6 @@ export default class GameScene extends Phase.Scene {
      * Game Start
      */
     create() {
-        /**
-         * Map Creation
-         */
         // Map Tiles
         const map = this.make.tilemap({ key: "map" });
         // Collide Option
@@ -39,6 +32,5 @@ export default class GameScene extends Phase.Scene {
         const worldLayer = map.createStaticLayer("world", tileset, 0, 0).setScale(mapScale);
         // Create world bounds
         this.physics.world.setBounds(0, 0, 10000, 10000);
-
     }
 };
