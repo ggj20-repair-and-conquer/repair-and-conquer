@@ -2,21 +2,9 @@
 <html>
     <head>
         <title>Repair & Conquer</title>
-        <meta charset="utf-8">
+        <meta charset="utf-8" />
     </head>
-    <body>
-        <script>
-            let socket;
-
-            if (window.location.hostname == 'localhost') {
-                socket = new WebSocket('ws://localhost:9000');
-            } else {
-                socket = new WebSocket('ws://pionlib.de:9000');
-            }
-
-            socket.onerror = function() {
-                alert('server not running, please start server!');
-            };
-        </script>
+    <body style="width: 100%;text-align: center;background: white;margin: 60px 0 0 0;">
+        <script src="src/socket.js"></script>
     </body>
 </html>
