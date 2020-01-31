@@ -50,27 +50,26 @@ export default class GameListScene extends Phaser.Scene {
         ];
         gridTable.setItems(games)
 
-        // socket.onmessage = function(msg) {
-        //   var obj = JSON.parse(msg.data);
+        socket.onmessage = function(msg) {
+          var obj = JSON.parse(msg.data);
 
-        //   if (obj.type == 'getGames') {
-        //     games = []
-        //     for (var gameKey in obj.data.games) {
-        //       games.push({
-        //         'id': gameKey,
-        //         'gameName': obj.data.games[gameKey].name,
-        //         'playerName': 'dom'
-        //       })
-        //     }
-        //     gridTable.setItems(games)
-        //   } else if (obj.type == 'joinGame') {
-        //     gameData.playerHash = obj.data.playerhash;
-        //     scene.start('GameLobby');
-        //   }
-        // }
+          if (obj.type == 'getGames') {
+            games = []
+            for (var gameKey in obj.data.games) {
+              games.push({
+                'id': gameKey,
+                'gameName': obj.data.games[gameKey].name,
+                'playerName': 'dom'
+              })
+            }
+            gridTable.setItems(games)
+          } else if (obj.type == 'joinGame') {
+            gameData.playerHash = obj.data.playerhash;
+            scene.start('GameLobby');
+          }
+        }
 
-        // socket.send(JSON.stringify({type: 'getGames'}));
-
+        socket.send(JSON.stringify({type: 'getGames'}));
 
         const btnBack = this.add.image(400, 750, 'btn_back');
         btnBack.setInteractive();
@@ -198,5 +197,5 @@ var createGrid = function (rexUI) {
             'name': playerName.text
         }
     });
-    //   socket.send(joinData);
+    socket.send(joinData);
 }
