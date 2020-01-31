@@ -39,6 +39,7 @@ module.exports = {
     }),
     new CopyPlugin([
       { from: 'assets', to: 'assets' },
+      { from: 'src/socket.js', to: 'src/socket.js' },
     ]),
   ]
 };
