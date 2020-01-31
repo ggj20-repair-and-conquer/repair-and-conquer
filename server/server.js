@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 9001 });
+const wss = new WebSocket.Server({ port: 9000 });
 
 let gameData = [];
 let gameCounter = 0;
