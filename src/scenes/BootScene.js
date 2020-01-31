@@ -9,5 +9,8 @@ export default class BootScene extends Phaser.Scene {
     }
 
     create() {
+        this.time.delayedCall(100, () => {
+            this.scene.start('Menu');
+        }, [], this);
     }
 };
