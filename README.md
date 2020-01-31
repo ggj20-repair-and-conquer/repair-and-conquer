@@ -1,3 +1,16 @@
+# Repair & Conquer
+
+## Folders
+
+### src/
+
+src/ is the folder for the phaser3 client source code.
+
+### server/
+
+server/ is meant for the server code which will reside on the server.
+Its non-phaser3 code.
+
 # Phaser 3 Webpack Project Template
 
 A Phaser 3 project template with ES6 support via [Babel 7](https://babeljs.io/) and [Webpack 4](https://webpack.js.org/)
