@@ -170,7 +170,7 @@ var createGrid = function (rexUI) {
         .on('cell.click', function (cellContainer, cellIndex) {
             btnJoin.visible = txtBackgroundPlayer.visible = playerName.visible = playerNameText.visible = true
             // @todo add sound
-            clickSound.play();
+            // clickSound.play();
             gameData.gameHash = games[cellIndex].id;
         }, this)
         .on('cell.over', function (cellContainer, cellIndex) {
@@ -185,7 +185,7 @@ var createGrid = function (rexUI) {
         }, this);
 }, joinGame = function () {
     // @todo add sound
-    clickSound.play();
+    // clickSound.play();
     if (!playerName.text) {
         alert('Enter your name')
         return false;
