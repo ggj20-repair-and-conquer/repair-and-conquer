@@ -37,7 +37,8 @@ wss.on('connection', function connection(ws) {
             let playerId = randomNumber() + '' + playerCounter;
             ws.playerId = playerId;
             gameData[gameId].players[playerId] = {
-                name: msgObject.playerName
+                name: msgObject.playerName,
+                money: 1000
             };
             sendToClient(ws, {type: 'joinGame', gameId: gameId, playerId: playerId});
         } else if (msgObject.type == 'listGames') {
@@ -109,7 +110,8 @@ wss.on('connection', function connection(ws) {
                 gameData[gameId].buildings[buildingId] = {
                     x: x,
                     y: y,
-                    playerId: playerId
+                    playerId: playerId,
+                    health: 100
                 };
             }
 
@@ -118,9 +120,20 @@ wss.on('connection', function connection(ws) {
                     sendToClient(client, {type: 'startGame'});
                 }
             });
-        } else if (msgObject.type == 'initGame') {
+        } else if (msgObject.type == 'updateGame') {
             let gameId = msgObject.gameId;
-            sendToClient(ws, {type: 'updateGame', buildings: gameData[gameId].buildings});
+            let playerId = msgObject.playerId;
+
+            sendToClient(
+                ws,
+                {
+                    type: 'updateGame',
+                    buildings: gameData[gameId].buildings,
+                    player: {
+                        money:  gameData[gameId].players[playerId].money,
+                    }
+                }
+            );
         }
     }).on('close', function close() {
 
