@@ -22,6 +22,7 @@ export default class GameScene extends Phaser.Scene {
         this.rect = null;
         this.rectGraphics = null;
         this.units = [];
+        this.buildings = [];
         this.selectedUnits = [];
 
         // The current id of the selected building, null if none selected
@@ -76,43 +77,46 @@ export default class GameScene extends Phaser.Scene {
 
             } else if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
-                    let baseSprite = this.physics.add.sprite(0, 0, data.buildings[buildingId].type);
-                    baseSprite.setInteractive();
-                    baseSprite.on('pointerdown', this.actionButton([
-                        {
-                            text: 'do fancy stuff',
-                            callback: () => {
-                                alert('callback!');
-                            }
-                        },
-                        {
-                            text: 'do fancy stuff2',
-                            callback: () => {
-                                alert('callback2!');
-                            }
-                        },
-                        {
-                            text: 'do fancy stuff3',
-                            callback: () => {
-                                alert('callback3!');
-                            }
-                        },
-                        {
-                            text: 'do fancy stuff4',
-                            callback: () => {
-                                alert('callback4!');
-                            }
+                    if (!this.buildings[buildingId]) {
+                        let buildType = data.buildings[buildingId].type;
+                        let unitType = '';
+
+                        if (buildType == 'barracks') {
+                            unitType = 'soldier';
+                        } else if (buildType == 'factory') {
+                            unitType = 'tank';
+                        } else if (buildType == 'airbase') {
+                            unitType = 'aircraft';
                         }
-                    ], buildingId), this);
 
-                    var baseText = this.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
-                    var baseContainer = this.add.container(
-                        data.buildings[buildingId].x,
-                        data.buildings[buildingId].y,
-                        [baseText, baseSprite]
-                    );
-                    this.physics.world.enable(baseContainer);
+                        let baseSprite = this.physics.add.sprite(0, 0, buildType);
+                        baseSprite.setInteractive();
 
+                        if (unitType) {
+                            baseSprite.on('pointerdown', this.actionButton([
+                                {
+                                    text: 'Build',
+                                    callback: () => {
+                                        socket.sendToServer({
+                                            type: 'build',
+                                            unit: unitType,
+                                            gameId: socket.gameData.gameId,
+                                            playerId: socket.gameData.playerId
+                                        });
+                                    }
+                                }
+                            ], buildingId), this);
+                        }
+
+                        var baseText = this.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
+                        var baseContainer = this.add.container(
+                            data.buildings[buildingId].x,
+                            data.buildings[buildingId].y,
+                            [baseText, baseSprite]
+                        );
+                        this.physics.world.enable(baseContainer);
+                        this.buildings[buildingId] = data.buildings[buildingId];
+                    }
                 }
 
                 this.moneyText.text = '$ ' + data.player.money;
@@ -120,18 +124,12 @@ export default class GameScene extends Phaser.Scene {
                 for (let unitId in data.units) {
                     let unit = data.units[unitId];
 
-                    if (this.units[unitId]) {
-                        //that.units[unitId].x = unit.x;
-                        //that.units[unitId].y = unit.y;
-                    } else {
+                    if (!this.units[unitId]) {
                         this.units[unitId] = new Unit(that, unit.x, unit.y, unit.type);
                         this.units[unitId].playerId = unit.playerId;
                         this.units[unitId].unitType = unit.type;
                         this.add.existing(this.units[unitId]);
 
-                        /**
-                         * Unit Collider
-                         */
                         this.physics.add.collider(this.units, this.RockLayer);
                         this.physics.add.collider(this.units, this.TreeLayer1);
                         this.physics.add.collider(this.units, this.TreeLayer2);
@@ -146,22 +144,22 @@ export default class GameScene extends Phaser.Scene {
             }
         });
 
-        // setInterval(() => {
-        //     let unitPositions = [];
-        //
-        //     for (let unitId in this.units) {
-        //         if (this.units[unitId].playerId == socket.gameData.playerId) {
-        //             unitPositions.push([unitId, this.units[unitId].x, this.units[unitId].y])
-        //         }
-        //     }
-        //
-        //     socket.sendToServer({
-        //         type: 'updateUnitPositions',
-        //         gameId: socket.gameData.gameId,
-        //         playerId: socket.gameData.playerId,
-        //         positions: unitPositions
-        //     });
-        // }, 50);
+        setInterval(() => {
+             let unitPositions = [];
+
+             for (let unitId in this.units) {
+                if (this.units[unitId].playerId == socket.gameData.playerId) {
+                     unitPositions.push([unitId, this.units[unitId].x, this.units[unitId].y])
+                 }
+             }
+
+             socket.sendToServer({
+                 type: 'updateUnitPositions',
+                 gameId: socket.gameData.gameId,
+                 playerId: socket.gameData.playerId,
+                 positions: unitPositions
+             });
+         }, 50);
 
         setInterval(() => {
             socket.sendToServer({
