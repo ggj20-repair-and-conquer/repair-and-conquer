@@ -1,6 +1,8 @@
 import 'phaser'
 import {Unit} from "../classes/units";
 
+import {Unit} from "../classes/units";
+
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super('Game');
