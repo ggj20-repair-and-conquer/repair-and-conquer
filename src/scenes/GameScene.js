@@ -90,6 +90,9 @@ export default class GameScene extends Phaser.Scene {
         /*
          * MAP SETTINGS
          */
+        /**
+         * Map Config
+         */
         const mapScale = 5;
 
         const map = this.make.tilemap({ key: "map" });
