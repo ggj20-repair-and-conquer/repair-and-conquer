@@ -37,7 +37,12 @@ export default class GameScene extends Phaser.Scene {
          */
         this.load.image("tiles", "assets/tilesets/mountain_landscape.png");
         this.load.tilemapTiledJSON("map", "assets/tilemaps/mountainMapTemplate.json");
-        // @todo Dummy for the HUD, replace this
+
+        this.load.image('base', 'assets/base.png');
+        this.load.image('soldier', 'assets/soldier.png');
+        this.load.image('tank', 'assets/tank.png');
+        this.load.image('aircraft', 'assets/aircraft.png');
+
         this.load.image('icon_dummy', 'assets/icons/icon_dummy.png');
         this.load.image('icon_repair', 'assets/icons/icon_repair.png');
         this.load.image('icon_damage', 'assets/icons/icon_damage.png');
@@ -79,7 +84,7 @@ export default class GameScene extends Phaser.Scene {
                         //that.units[unitId].x = unit.x;
                         //that.units[unitId].y = unit.y;
                     } else {
-                        that.units[unitId] = new Unit(that, unit.x, unit.y, '');
+                        that.units[unitId] = new Unit(that, unit.x, unit.y, unit.type);
                         that.units[unitId].playerId = unit.playerId;
                         that.units[unitId].unitType = unit.type;
                         that.add.existing(that.units[unitId]);
@@ -296,15 +301,25 @@ export default class GameScene extends Phaser.Scene {
             }
         },{
             icon: 'icon_damage',
-            text: '$ Dmg Unit',
+            text: 'Build Tank',
             clickCallback: () => {
-                alert('Clicked Item 2');
+                socket.sendToServer({
+                    type: 'build',
+                    unit: 'tank',
+                    gameId: socket.gameData.gameId,
+                    playerId: socket.gameData.playerId
+                });
             }
         },{
             icon: 'icon_dummy',
-            text: '$ DEV Unit',
+            text: 'Build Airplane',
             clickCallback: () => {
-                alert('Clicked Item 3');
+                socket.sendToServer({
+                    type: 'build',
+                    unit: 'aircraft',
+                    gameId: socket.gameData.gameId,
+                    playerId: socket.gameData.playerId
+                });
             }
         },{
             icon: 'icon_dummy',
