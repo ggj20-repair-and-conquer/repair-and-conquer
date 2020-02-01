@@ -187,13 +187,15 @@ export default class GameScene extends Phaser.Scene {
          * Camera
          */
         this.physics.world.setBounds(0, 0, 10000, 10000);
-        this.minimap = this.cameras.add(1700-300, 900-400, 150, 150).setZoom(0.05).setName('mini');
+        this.minimap = this.cameras.add(0, 720, 180, 180).setZoom(0.05).setName('mini');
         this.minimap.setBackgroundColor(0x3e4f3c);
-        this.minimap.scrollX = 1400;
-        this.minimap.scrollY = 1400;
+        this.minimap.scrollX = this.map.widthInPixels/2;
+        this.minimap.scrollY = this.map.heightInPixels/2;
         // Ignore party of the map to improve performance
         this.minimap.ignore(worldTileSet);
         this.minimap.ignore(GroundLayer1);
+        this.minimap.ignore(GrassLayer);
+        this.minimap.ignore(ObjectLayer);
         // Create a rectangle as the view border in the minimap which we move in update()
         this.minimapRect = new Phaser.Geom.Rectangle(
             0 - 10,
@@ -330,6 +332,7 @@ export default class GameScene extends Phaser.Scene {
             stroke: '#000',
             fontWeight: 'bold'
         });
+        this.minimap.ignore(this.moneyText);
 
         // This stay be at the end
         this.socketHandling()
