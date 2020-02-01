@@ -38,7 +38,8 @@ wss.on('connection', function connection(ws) {
             ws.playerId = playerId;
             gameData[gameId].players[playerId] = {
                 name: msgObject.playerName,
-                money: 1000
+                money: 1000,
+                lastupdate: null,
             };
             sendToClient(ws, {type: 'joinGame', gameId: gameId, playerId: playerId});
         } else if (msgObject.type == 'listGames') {
@@ -107,6 +108,7 @@ wss.on('connection', function connection(ws) {
                     y = 700;
                 }
 
+                gameData[gameId].players[playerId].lastupdate = new Date().getTime();
                 gameData[gameId].buildings[buildingId] = {
                     x: x,
                     y: y,
@@ -123,7 +125,10 @@ wss.on('connection', function connection(ws) {
         } else if (msgObject.type == 'updateGame') {
             let gameId = msgObject.gameId;
             let playerId = msgObject.playerId;
-            gameData[gameId].players[playerId].lastupdate = new Date().getTime();
+            let currentTime = new Date().getTime();
+            let delta = currentTime - gameData[gameId].players[playerId].lastupdate;
+            gameData[gameId].players[playerId].lastupdate = currentTime;
+            gameData[gameId].players[playerId].money += Math.round((delta / 100);
 
             sendToClient(
                 ws,

@@ -47,7 +47,7 @@ export default class GameScene extends Phaser.Scene {
                     that.physics.world.enable(baseContainer);
                 }
 
-                //data.player.money
+                console.log(data.player.money);
             }
         });
 
