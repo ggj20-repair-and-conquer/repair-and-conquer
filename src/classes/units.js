@@ -12,6 +12,8 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.level = 1;
         this.armor = 0;
         this.state = 0;
+        this.width = 30;
+        this.height = 30;
 
         this.targetX = 0;
         this.targetY = 0;
