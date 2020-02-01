@@ -13,6 +13,10 @@ export default class CreateGameScene extends Phaser.Scene {
     }
 
     createGame(gameRoomText, playerNameText) {
+        if (gameRoomText.text == '' || playerNameText.text == '') {
+            return;
+        }
+
         let scene = this.scene;
 
         socket.sendToServer({
