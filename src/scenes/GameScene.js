@@ -35,6 +35,7 @@ export default class GameScene extends Phaser.Scene {
         this.load.tilemapTiledJSON("map", "assets/tilemaps/mapTemplate.json");
         // @todo Dummy for the HUD, replace this
         this.load.image('icon_dummy', 'assets/icons/icon_dummy.png');
+        this.load.audio('hoverSound', 'assets/sounds/hud_hover.wav');
     }
 
     socketHandling() {
@@ -269,6 +270,7 @@ export default class GameScene extends Phaser.Scene {
     createHud(data) {
         var rexUI = this.rexUI;
         var data = data;
+        let hoverSound = this.sound.add('hoverSound');
         let hudTable = rexUI.add.gridTable({
             x: this.cameras.main.scrollX + (1700/2),
             y: this.cameras.main.scrollY + 810,
@@ -314,6 +316,7 @@ export default class GameScene extends Phaser.Scene {
             cellContainer.getElement('background')
                 .setStrokeStyle(1, 0xffffff)
                 .setDepth(1);
+            hoverSound.play();
             this.hudHovered = true;
         }, this).on('cell.out', function (cellContainer, cellIndex) {
             cellContainer.getElement('background')
