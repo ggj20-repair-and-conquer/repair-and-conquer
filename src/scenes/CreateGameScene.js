@@ -77,9 +77,18 @@ export default class CreateGameScene extends Phaser.Scene {
         }, this);
 
         /*
+         * back button
+         */
+        const btnBack = this.add.image(400, 700, 'btn_back');
+        btnBack.setInteractive();
+        btnBack.on('pointerdown', () => {
+            this.scene.start('Menu');
+        }, this);
+
+        /*
          * create button
          */
-        const btnCreate = this.add.image(820, 500, 'btn_create');
+        const btnCreate = this.add.image(1000, 700, 'btn_create');
         btnCreate.setInteractive();
         btnCreate.on('pointerdown', () => {
             this.createGame(gameRoomText, playerNameText);
