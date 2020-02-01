@@ -292,17 +292,19 @@ export default class GameScene extends Phaser.Scene {
                 this.aim.x -= deltaScroll;
             }
 
-            if(mouseY > this.cameras.main.midPoint.y + yThreshold) {
+            if(mouseY > this.cameras.main.midPoint.y + yThreshold - 100) {
+                // Move camera downwards
                 this.cameras.main.scrollY += deltaScroll;
                 this.aim.y += deltaScroll;
             } else if (mouseY < this.cameras.main.midPoint.y - yThreshold) {
+                // Move camera upwards
                 this.cameras.main.scrollY -= deltaScroll;
                 this.aim.y -= deltaScroll;
             }
 
             // Update hudTable coordinates since this.cameras.main.x and y is 0 always and we therefore cannot attach to it.
             this.hudTable.x = this.cameras.main.scrollX + (1700/2);
-            this.hudTable.y = this.cameras.main.scrollY + 810;
+            this.hudTable.y = this.cameras.main.scrollY + 850;
         }
     }
 
@@ -318,23 +320,24 @@ export default class GameScene extends Phaser.Scene {
         var rexUI = this.rexUI;
         var data = data;
         let hoverSound = this.sound.add('hoverSound');
+
         let hudTable = rexUI.add.gridTable({
             x: this.cameras.main.scrollX + (1700/2),
-            y: this.cameras.main.scrollY + 810,
-            background: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0x2D3C2C, 0.8),
+            y: this.cameras.main.scrollY + 850,
+            background: rexUI.add.roundRectangle(0, 0, 20, 10, 0, 0x4e634c),
             table: {
-                width: 1000,
-                height: 120,
+                width: 1700,
+                height: 100,
                 cellWidth: 200,
-                cellHeight: 120,
-                columns: 5,
+                cellHeight: 100,
+                columns: 8,
             },
             space: {
-                left: 10,
-                right: 10,
-                top: 10,
-                bottom: 10,
-                table: 10,
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                table: 0,
             },
             items: data,
             createCellContainerCallback: function (cell) {
@@ -346,7 +349,7 @@ export default class GameScene extends Phaser.Scene {
                 return scene.rexUI.add.label({
                     width: width,
                     height: height,
-                    background: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, 0x455a43),
+                    background: rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, 0x455a43),
                     icon: iconImg,
                     text: scene.add.text(0, 0, item.text),
                     space: {
