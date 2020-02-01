@@ -99,7 +99,7 @@ export default class GameScene extends Phaser.Scene {
 
         // File with Assets should be in another file
         const testHill = [
-          [1, 1, 1, 1, 91, 80, 71, 92],
+          [1, 1, 1, 1, 91, 80, 80, 92],
           [1, 1, 91, 80, 81, 108, 96, 67],
           [139, 92, 144, 120, 96, 91, 80, 81],
           [1, 142, 1, 108, 108, 144, 1, 1]
