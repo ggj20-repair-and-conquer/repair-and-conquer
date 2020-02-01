@@ -73,14 +73,17 @@ export default class GameScene extends Phaser.Scene {
                 }
             } else if (data.type == 'updateUnits') {
                 for (let unitId in data.units) {
-                    let unitX = data.units[unitId].x;
-                    let unitY = data.units[unitId].y;
+                    let unit = data.units[unitId];
 
                     if (that.units[unitId]) {
-                        that.units[unitId].x = unitX;
-                        that.units[unitId].y = unitY;
+                        //that.units[unitId].x = unit.x;
+                        //that.units[unitId].y = unit.y;
                     } else {
-                        that.units[unitId] = new Unit(that, unitX, unitY, '');
+                        that.units[unitId] = new Unit(that, unit.x, unit.y, '');
+                        that.units[unitId].playerId = unit.playerId;
+                        that.units[unitId].unitType = unit.type;
+
+                        console.log(unit);
                         that.add.existing(that.units[unitId]);
                     }
                 }
@@ -136,7 +139,10 @@ export default class GameScene extends Phaser.Scene {
          * Camera
          */
         this.physics.world.setBounds(0, 0, 10000, 10000);
-
+        this.minimap = this.cameras.add(1700-300, 900-300, 300, 300).setZoom(0.05).setName('mini');
+        this.minimap.setBackgroundColor(0x002244);
+        this.minimap.scrollX = 2800;
+        this.minimap.scrollY = 2800;
         /*
          * Mouse controller
          */
@@ -236,10 +242,6 @@ export default class GameScene extends Phaser.Scene {
            }
         });
 
-        this.physics.add.overlap(this.units, worldLayer, (units) => {
-            console.log("units");
-            console.log(units);
-        });
         /*
          * Overlay
          */

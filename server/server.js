@@ -168,10 +168,11 @@ wss.on('connection', function connection(ws) {
             let unitId = randomNumber() + '' + unitCounter;
 
             gameData[gameId].units[unitId] = {
-                x: 100,
-                y: 100,
+                x: 200,
+                y: 200,
                 playerId: playerId,
-                health: 100
+                health: 100,
+                type: 'soldier'
             };
 
             wss.clients.forEach(function each(client) {
