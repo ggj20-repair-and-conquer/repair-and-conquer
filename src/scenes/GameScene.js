@@ -26,7 +26,7 @@ export default class GameScene extends Phaser.Scene {
     preload() {
         // load images
         this.load.image("tiles", "assets/tilesets/overworld_tileset_grass.png");
-        this.load.tilemapTiledJSON("map", "assets/tilemaps/map.json");
+        this.load.tilemapTiledJSON("map", "assets/tilemaps/mapTemplate.json");
     }
 
     socketHandling() {
