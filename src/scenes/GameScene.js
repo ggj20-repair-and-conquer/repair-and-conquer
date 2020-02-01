@@ -163,8 +163,20 @@ export default class GameScene extends Phaser.Scene {
         this.minimap.setBackgroundColor(0x3e4f3c);
         this.minimap.scrollX = 2800;
         this.minimap.scrollY = 2800;
+        // Ignore party of the map to improve performance
+        this.minimap.ignore(worldTileSet);
         this.minimap.ignore(worldLayer);
         this.minimap.ignore(this.collisionLayer);
+        // Create a rectangle as the view border in the minimap which we move in update()
+        this.minimapRect = new Phaser.Geom.Rectangle(
+            0 - 10,
+            0 - 10,
+            1720,
+            920,
+        );
+        this.minimapRectGraphics = this.add.graphics();
+        this.minimapRectGraphics.lineStyle(20, 0xff0000, 1);
+        this.minimapRectGraphics.strokeRectShape(this.minimapRect);
 
         /*
          * Mouse controller
@@ -348,6 +360,13 @@ export default class GameScene extends Phaser.Scene {
             // Update hudTable coordinates since this.cameras.main.x and y is 0 always and we therefore cannot attach to it.
             this.hudTable.x = this.cameras.main.scrollX + (1700/2);
             this.hudTable.y = this.cameras.main.scrollY + 850;
+
+            // Update the rectangle for the minimap
+            this.minimapRect.setPosition(this.cameras.main.scrollX - 10, this.cameras.main.scrollY - 10);
+            this.minimapRectGraphics.destroy();
+            this.minimapRectGraphics = this.add.graphics();
+            this.minimapRectGraphics.lineStyle(20, 0xff0000, 1);
+            this.minimapRectGraphics.strokeRectShape(this.minimapRect);
         }
     }
 
