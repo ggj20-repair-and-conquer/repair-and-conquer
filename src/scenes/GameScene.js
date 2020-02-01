@@ -8,7 +8,6 @@ export default class GameScene extends Phaser.Scene {
         super('Game');
         // variables for the hud
         this.hudTable;
-        this.hudHovered = false;
     }
 
     init() {
@@ -37,7 +36,12 @@ export default class GameScene extends Phaser.Scene {
          */
         this.load.image("tiles", "assets/tilesets/mountain_landscape.png");
         this.load.tilemapTiledJSON("map", "assets/tilemaps/mountainMapTemplate.json");
-        // @todo Dummy for the HUD, replace this
+
+        this.load.image('base', 'assets/base.png');
+        this.load.image('soldier', 'assets/soldier.png');
+        this.load.image('tank', 'assets/tank.png');
+        this.load.image('aircraft', 'assets/aircraft.png');
+
         this.load.image('icon_dummy', 'assets/icons/icon_dummy.png');
         this.load.image('icon_repair', 'assets/icons/icon_repair.png');
         this.load.image('icon_damage', 'assets/icons/icon_damage.png');
@@ -81,7 +85,7 @@ export default class GameScene extends Phaser.Scene {
                         //that.units[unitId].x = unit.x;
                         //that.units[unitId].y = unit.y;
                     } else {
-                        that.units[unitId] = new Unit(that, unit.x, unit.y, '');
+                        that.units[unitId] = new Unit(that, unit.x, unit.y, unit.type);
                         that.units[unitId].playerId = unit.playerId;
                         that.units[unitId].unitType = unit.type;
                         that.add.existing(that.units[unitId]);
@@ -144,18 +148,18 @@ export default class GameScene extends Phaser.Scene {
          */
         const mapScale = 1;
 
-        const map = this.make.tilemap({ key: "map" });
-        map.setCollisionByProperty({ collides: true });
+        this.map = this.make.tilemap({ key: "map" });
+        this.map.setCollisionByProperty({ collides: true });
 
         // Tileset Config
-        const worldTileSet = map.addTilesetImage("mountain_landscape", "tiles");
+        const worldTileSet = this.map.addTilesetImage("mountain_landscape", "tiles");
 
         /**
          * Create Map with Objects
          */
         // Map World Layer
-        const worldLayer = map.createDynamicLayer("World", worldTileSet, 0, 0).setScale(mapScale);
-        this.collisionLayer = map.createBlankDynamicLayer("Collision", worldTileSet, 0, 0).setScale(mapScale);
+        const worldLayer = this.map.createDynamicLayer("World", worldTileSet, 0, 0).setScale(mapScale);
+        this.collisionLayer = this.map.createBlankDynamicLayer("Collision", worldTileSet, 0, 0).setScale(mapScale);
 
         /**
          * Camera
@@ -165,8 +169,20 @@ export default class GameScene extends Phaser.Scene {
         this.minimap.setBackgroundColor(0x3e4f3c);
         this.minimap.scrollX = 2800;
         this.minimap.scrollY = 2800;
+        // Ignore party of the map to improve performance
+        this.minimap.ignore(worldTileSet);
         this.minimap.ignore(worldLayer);
         this.minimap.ignore(this.collisionLayer);
+        // Create a rectangle as the view border in the minimap which we move in update()
+        this.minimapRect = new Phaser.Geom.Rectangle(
+            0 - 10,
+            0 - 10,
+            1720,
+            920,
+        );
+        this.minimapRectGraphics = this.add.graphics();
+        this.minimapRectGraphics.lineStyle(20, 0xff0000, 1);
+        this.minimapRectGraphics.strokeRectShape(this.minimapRect);
 
         /*
          * Mouse controller
@@ -274,8 +290,8 @@ export default class GameScene extends Phaser.Scene {
         // Generate Hud data and create initial Hud
         // @todo Replace data with data from the server or hard coded controls
         let data = [{
-            icon: 'icon_repair',
-            text: 'Repair',
+            icon: 'icon_damage',
+            text: 'Soldier',
             clickCallback: () => {
                 socket.sendToServer({
                     type: 'build',
@@ -285,20 +301,30 @@ export default class GameScene extends Phaser.Scene {
                 });
             }
         },{
-            icon: 'icon_damage',
-            text: 'Destroy',
+            icon: 'icon_repair',
+            text: 'Repair',
             clickCallback: () => {
-                alert('Clicked Item 2');
-            }
-        },{
-            icon: 'icon_tank',
-            text: 'Tank',
-            clickCallback: () => {
-                alert('Clicked Item 3');
+                socket.sendToServer({
+                    type: 'build',
+                    unit: 'tank',
+                    gameId: socket.gameData.gameId,
+                    playerId: socket.gameData.playerId
+                });
             }
         },{
             icon: 'icon_fighter_jets',
             text: 'Aircraft',
+            clickCallback: () => {
+                socket.sendToServer({
+                    type: 'build',
+                    unit: 'aircraft',
+                    gameId: socket.gameData.gameId,
+                    playerId: socket.gameData.playerId
+                });
+            }
+        },{
+            icon: 'icon_tank',
+            text: 'Tank',
             clickCallback: () => {
                 alert('Clicked Item 4');
             }
@@ -321,35 +347,56 @@ export default class GameScene extends Phaser.Scene {
      * e.g. mousemovement...
      */
     update(time, delta) {
-        // this.hudHovered manages stop scrolling if the hud gets hovered
-        if (this.lockMovement && !this.hudHovered) {
+        if (this.lockMovement) {
             const mouseX = this.aim.x;
             const mouseY = this.aim.y;
-            const xThreshold = 1700 / 3;
-            const yThreshold = 900 / 3;
+            const xThreshold = 1700 / 2.25;
+            const yThreshold = 900 / 2.25;
             const deltaScroll = 10;
 
             if (mouseX > this.cameras.main.midPoint.x + xThreshold) {
-                this.cameras.main.scrollX += deltaScroll;
-                this.aim.x += deltaScroll;
+                // Move view to the right
+                // Only move if we are not too far right
+                if (this.cameras.main.midPoint.x < (this.map.widthInPixels - (1700 / 2))) {
+                    this.cameras.main.scrollX += deltaScroll;
+                    this.aim.x += deltaScroll;
+                }
             } else if (mouseX < this.cameras.main.midPoint.x - xThreshold) {
-                this.cameras.main.scrollX -= deltaScroll;
-                this.aim.x -= deltaScroll;
+                // Move view to the left
+                // Only move if we are not too far left
+                if (this.cameras.main.midPoint.x > (1700 / 2)) {
+                    this.cameras.main.scrollX -= deltaScroll;
+                    this.aim.x -= deltaScroll;
+                }
             }
 
 
-            if(mouseY > this.cameras.main.midPoint.y + yThreshold - 100) {
-                this.cameras.main.scrollY += deltaScroll;
-                this.aim.y += deltaScroll;
+            if(mouseY > this.cameras.main.midPoint.y + yThreshold) {
+                // Move view to the bottom
+                // Only move if we are not too far at the bottom
+                if (this.cameras.main.midPoint.y < (this.map.heightInPixels - (900 / 2))) {
+                    this.cameras.main.scrollY += deltaScroll;
+                    this.aim.y += deltaScroll;
+                }
             } else if (mouseY < this.cameras.main.midPoint.y - yThreshold) {
-                // Move camera upwards
-                this.cameras.main.scrollY -= deltaScroll;
-                this.aim.y -= deltaScroll;
+                // Move view to the top
+                // Only move if we are not too far at the top
+                if (this.cameras.main.midPoint.y > (900 / 2)) {
+                    this.cameras.main.scrollY -= deltaScroll;
+                    this.aim.y -= deltaScroll;
+                }
             }
 
             // Update hudTable coordinates since this.cameras.main.x and y is 0 always and we therefore cannot attach to it.
             this.hudTable.x = this.cameras.main.scrollX + (1700/2);
             this.hudTable.y = this.cameras.main.scrollY + 850;
+
+            // Update the rectangle for the minimap
+            this.minimapRect.setPosition(this.cameras.main.scrollX - 10, this.cameras.main.scrollY - 10);
+            this.minimapRectGraphics.destroy();
+            this.minimapRectGraphics = this.add.graphics();
+            this.minimapRectGraphics.lineStyle(20, 0xff0000, 1);
+            this.minimapRectGraphics.strokeRectShape(this.minimapRect);
         }
     }
 
@@ -412,12 +459,10 @@ export default class GameScene extends Phaser.Scene {
                 .setStrokeStyle(1, 0xffffff)
                 .setDepth(1);
             hoverSound.play();
-            this.hudHovered = true;
         }, this).on('cell.out', function (cellContainer, cellIndex) {
             cellContainer.getElement('background')
                 .setStrokeStyle(2, 0x455a43)
                 .setDepth(0);
-            this.hudHovered = false;
         }, this).on('cell.click', function (cellContainer, cellIndex) {
             data[cellIndex].clickCallback();
         }, this);

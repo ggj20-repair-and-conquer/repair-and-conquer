@@ -172,7 +172,7 @@ wss.on('connection', function connection(ws) {
                 y: 200,
                 playerId: playerId,
                 health: 100,
-                type: 'soldier'
+                type: msgObject.unit
             };
 
             wss.clients.forEach(function each(client) {
