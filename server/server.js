@@ -172,7 +172,7 @@ wss.on('connection', function connection(ws) {
             let playerId = msgObject.playerId;
 
             unitCounter++;
-            let unitId = randomNumber() + '' + unitCounter;
+            let unitId = 'A' + randomNumber() + '' + unitCounter;
 
             gameData[gameId].units[unitId] = {
                 x: 200,

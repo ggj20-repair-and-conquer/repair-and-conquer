@@ -87,10 +87,18 @@ export default class GameScene extends Phaser.Scene {
                         //that.units[unitId].x = unit.x;
                         //that.units[unitId].y = unit.y;
                     } else {
-                        this.units[unitId] = new Unit(this, unit.x, unit.y, unit.type);
+                        this.units[unitId] = new Unit(that, unit.x, unit.y, unit.type);
                         this.units[unitId].playerId = unit.playerId;
                         this.units[unitId].unitType = unit.type;
                         this.add.existing(this.units[unitId]);
+
+                        /**
+                         * Unit Collider
+                         */
+                        this.physics.add.collider(this.units, this.RockLayer);
+                        this.physics.add.collider(this.units, this.TreeLayer1);
+                        this.physics.add.collider(this.units, this.TreeLayer2);
+                        this.physics.add.collider(this.units, this.TreeLayer3);
                     }
                 }
             } else if (data.type == 'updateUnitPositions') {
@@ -101,22 +109,22 @@ export default class GameScene extends Phaser.Scene {
             }
         });
 
-        setInterval(() => {
-            let unitPositions = [];
-
-            for (let unitId in this.units) {
-                if (this.units[unitId].playerId == socket.gameData.playerId) {
-                    unitPositions.push([unitId, this.units[unitId].x, this.units[unitId].y])
-                }
-            }
-
-            socket.sendToServer({
-                type: 'updateUnitPositions',
-                gameId: socket.gameData.gameId,
-                playerId: socket.gameData.playerId,
-                positions: unitPositions
-            });
-        }, 50);
+        // setInterval(() => {
+        //     let unitPositions = [];
+        //
+        //     for (let unitId in this.units) {
+        //         if (this.units[unitId].playerId == socket.gameData.playerId) {
+        //             unitPositions.push([unitId, this.units[unitId].x, this.units[unitId].y])
+        //         }
+        //     }
+        //
+        //     socket.sendToServer({
+        //         type: 'updateUnitPositions',
+        //         gameId: socket.gameData.gameId,
+        //         playerId: socket.gameData.playerId,
+        //         positions: unitPositions
+        //     });
+        // }, 50);
 
         setInterval(() => {
             socket.sendToServer({
@@ -146,31 +154,22 @@ export default class GameScene extends Phaser.Scene {
          * Map Config
          */
         const mapScale = 1;
-
         this.map = this.make.tilemap({ key: "map" });
         this.map.setCollisionByProperty({ collides: true });
 
         // Tileset Config
-        const worldTileSet = this.map.addTilesetImage("mountain_landscape", "tiles");
+        this.worldTileSet = this.map.addTilesetImage("mountain_landscape", "tiles");
 
         /**
          * Create Map Layers
          */
-        const GroundLayer1 = this.map.createStaticLayer("GroundLayer1", worldTileSet, 0, 0).setScale(mapScale);
-        const RockLayer = this.map.createStaticLayer("RockLayer", worldTileSet, 0, 0).setScale(mapScale);
-        const GrassLayer = this.map.createStaticLayer("GrassLayer", worldTileSet, 0, 0).setScale(mapScale);
-        const ObjectLayer = this.map.createStaticLayer("ObjectLayer", worldTileSet, 0, 0).setScale(mapScale);
-        const TreeLayer1 = this.map.createStaticLayer("TreeLayer1", worldTileSet, 0, 0).setScale(mapScale);
-        const TreeLayer2 = this.map.createStaticLayer("TreeLayer2", worldTileSet, 0, 0).setScale(mapScale);
-        const TreeLayer3 = this.map.createStaticLayer("TreeLayer3", worldTileSet, 0, 0).setScale(mapScale);
-
-        /**
-         * Unit Collider
-         */
-        this.physics.add.collider(this.units, RockLayer);
-        this.physics.add.collider(this.units, TreeLayer1);
-        this.physics.add.collider(this.units, TreeLayer2);
-        this.physics.add.collider(this.units, TreeLayer3);
+        this.GroundLayer1 = this.map.createStaticLayer("GroundLayer1", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.RockLayer = this.map.createStaticLayer("RockLayer", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.GrassLayer = this.map.createStaticLayer("GrassLayer", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.ObjectLayer = this.map.createStaticLayer("ObjectLayer", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.TreeLayer1 = this.map.createStaticLayer("TreeLayer1", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.TreeLayer2 = this.map.createStaticLayer("TreeLayer2", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.TreeLayer3 = this.map.createStaticLayer("TreeLayer3", this.worldTileSet, 0, 0).setScale(mapScale);
 
         /**
          * Camera
@@ -181,8 +180,8 @@ export default class GameScene extends Phaser.Scene {
         this.minimap.scrollX = 1400;
         this.minimap.scrollY = 1400;
         // Ignore party of the map to improve performance
-        this.minimap.ignore(worldTileSet);
-        this.minimap.ignore(GroundLayer1);
+        this.minimap.ignore(this.worldTileSet);
+        this.minimap.ignore(this.GroundLayer1);
         // Create a rectangle as the view border in the minimap which we move in update()
         this.minimapRect = new Phaser.Geom.Rectangle(
             0 - 10,
@@ -280,7 +279,7 @@ export default class GameScene extends Phaser.Scene {
                     );
 
                     findUnits.forEach((body) => {
-                        if (body.gameObject.type === 'Sprite') {
+                        if (typeof body.gameObject.unitType !== typeof undefined) {
                             this.selectedUnits.push(body.gameObject);
                         }
                     });
