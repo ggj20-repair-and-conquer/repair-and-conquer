@@ -6,8 +6,6 @@ export default class GameScene extends Phaser.Scene {
 
     constructor() {
         super('Game');
-        // variables for the hud
-        this.hudTable;
     }
 
     init() {
@@ -38,6 +36,11 @@ export default class GameScene extends Phaser.Scene {
         this.load.tilemapTiledJSON("map", "assets/tilemaps/MountainMap.json");
 
         this.load.image('base', 'assets/base.png');
+        this.load.image('factory', 'assets/factory.png');
+        this.load.image('barracks', 'assets/barracks.png');
+        this.load.image('airbase', 'assets/airbase.png');
+
+
         this.load.image('soldier', 'assets/soldier.png');
         this.load.image('tank', 'assets/tank.png');
         this.load.image('aircraft', 'assets/aircraft.png');
@@ -48,7 +51,6 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('icon_tank', 'assets/icons/icon_tank.png');
         this.load.image('icon_fighter_jets', 'assets/icons/icon_fighter_jets.png');
         this.load.image('icon_money', 'assets/icons/icon_treasure.png');
-        this.load.audio('hoverSound', 'assets/sounds/hud_hover.wav');
     }
 
     socketHandling() {
@@ -72,11 +74,13 @@ export default class GameScene extends Phaser.Scene {
                 }
             } else if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
-                    let baseSprite = that.physics.add.sprite(0, 0, 'base');
+                    let baseSprite = that.physics.add.sprite(0, 0, data.buildings[buildingId].type);
                     var baseText = that.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
                     var baseContainer = that.add.container(data.buildings[buildingId].x, data.buildings[buildingId].y, [baseText, baseSprite]);
                     that.physics.world.enable(baseContainer);
                 }
+
+                that.moneyText.text = '$ ' + data.player.money;
             } else if (data.type == 'updateUnits') {
                 for (let unitId in data.units) {
                     let unit = data.units[unitId];
@@ -297,57 +301,24 @@ export default class GameScene extends Phaser.Scene {
         /*
          * Overlay
          */
-      
-        // Generate Hud data and create initial Hud
-        // @todo Replace data with data from the server or hard coded controls
-        let data = [{
-            icon: 'icon_damage',
-            text: 'Soldier',
-            clickCallback: () => {
-                socket.sendToServer({
-                    type: 'build',
-                    unit: 'soldier',
-                    gameId: socket.gameData.gameId,
-                    playerId: socket.gameData.playerId
-                });
-            }
-        },{
-            icon: 'icon_repair',
-            text: 'Repair',
-            clickCallback: () => {
-                socket.sendToServer({
-                    type: 'build',
-                    unit: 'tank',
-                    gameId: socket.gameData.gameId,
-                    playerId: socket.gameData.playerId
-                });
-            }
-        },{
-            icon: 'icon_fighter_jets',
-            text: 'Aircraft',
-            clickCallback: () => {
-                socket.sendToServer({
-                    type: 'build',
-                    unit: 'aircraft',
-                    gameId: socket.gameData.gameId,
-                    playerId: socket.gameData.playerId
-                });
-            }
-        },{
-            icon: 'icon_tank',
-            text: 'Tank',
-            clickCallback: () => {
-                alert('Clicked Item 4');
-            }
-        },{
-            icon: 'icon_money',
-            text: '$$$ Money',
-            clickCallback: () => {
-                alert('Clicked Item 5. $$$DOLLARS$$$');
-            }
-        }];
-        this.hudTable = this.createHud(data);
-        this.minimap.ignore(this.hudTable);
+
+        /*
+        socket.sendToServer({
+            type: 'build',
+            unit: 'tank',
+            gameId: socket.gameData.gameId,
+            playerId: socket.gameData.playerId
+        });
+         */
+
+
+        this.moneyText = this.add.text(0, 0, "Money!", {
+            font: '20px Courier',
+            fill: '#fff',
+            strokeThickness: 6,
+            stroke: '#000',
+            fontWeight: 'bold'
+        });
 
         // This stay be at the end
         this.socketHandling()
@@ -398,9 +369,7 @@ export default class GameScene extends Phaser.Scene {
                 }
             }
 
-            // Update hudTable coordinates since this.cameras.main.x and y is 0 always and we therefore cannot attach to it.
-            this.hudTable.x = this.cameras.main.scrollX + (1700/2);
-            this.hudTable.y = this.cameras.main.scrollY + 850;
+            this.moneyText.setPosition(this.cameras.main.scrollX + 1590, this.cameras.main.scrollY + 10);
 
             // Update the rectangle for the minimap
             this.minimapRect.setPosition(this.cameras.main.scrollX - 10, this.cameras.main.scrollY - 10);
@@ -409,75 +378,5 @@ export default class GameScene extends Phaser.Scene {
             this.minimapRectGraphics.lineStyle(20, 0xff0000, 1);
             this.minimapRectGraphics.strokeRectShape(this.minimapRect);
         }
-    }
-
-    /**
-     * Creates the HUD in this.hudTable with the given data.
-     *
-     * @param {*} data Should have following keys
-     *      icon: Path for an icon to show, displayed on the left.
-     *      text: The text to show.
-     *      clickCallback: A function called when the cell gets clicked.
-     */
-    createHud(data) {
-        var rexUI = this.rexUI;
-        var data = data;
-        let hoverSound = this.sound.add('hoverSound');
-
-        let hudTable = rexUI.add.gridTable({
-            x: this.cameras.main.scrollX + (1700/2),
-            y: this.cameras.main.scrollY + 850,
-            background: rexUI.add.roundRectangle(0, 0, 20, 10, 0, 0x4e634c),
-            table: {
-                width: 1700,
-                height: 100,
-                cellWidth: 200,
-                cellHeight: 100,
-                columns: 8,
-            },
-            space: {
-                left: 0,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                table: 0,
-            },
-            items: data,
-            createCellContainerCallback: function (cell) {
-                var scene = cell.scene,
-                    width = cell.width,
-                    height = cell.height,
-                    item = cell.item;
-                let iconImg = scene.add.image(0, 0, item.icon);
-                return scene.rexUI.add.label({
-                    width: width,
-                    height: height,
-                    background: rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, 0x455a43),
-                    icon: iconImg,
-                    text: scene.add.text(0, 0, item.text),
-                    space: {
-                        icon: 10,
-                        left: 15
-                    },
-                    data: {
-                        'clickCallback': item.clickCallback
-                    }
-                }).setOrigin(0).layout();
-            }
-        }).layout()
-        .on('cell.over', function (cellContainer, cellIndex) {
-            cellContainer.getElement('background')
-                .setStrokeStyle(1, 0xffffff)
-                .setDepth(1);
-            hoverSound.play();
-        }, this).on('cell.out', function (cellContainer, cellIndex) {
-            cellContainer.getElement('background')
-                .setStrokeStyle(2, 0x455a43)
-                .setDepth(0);
-        }, this).on('cell.click', function (cellContainer, cellIndex) {
-            data[cellIndex].clickCallback();
-        }, this);
-
-        return hudTable
     }
 };

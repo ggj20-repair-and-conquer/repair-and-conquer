@@ -98,30 +98,43 @@ wss.on('connection', function connection(ws) {
             let localPlayerCounter = 0;
 
             for (let playerId in gameData[gameId].players) {
-                let buildingId = randomNumber() + '' + buildingCounter;
-                buildingCounter++;
                 localPlayerCounter++;
-                let x;
-                let y;
-
-                if (localPlayerCounter == 1) {
-                    x = 50;
-                    y = 50;
-                } else if (localPlayerCounter == 2) {
-                    x = 500;
-                    y = 500;
-                } else if (localPlayerCounter == 3) {
-                    x = 700;
-                    y = 700;
-                }
-
                 gameData[gameId].players[playerId].lastupdate = new Date().getTime();
-                gameData[gameId].buildings[buildingId] = {
-                    x: x,
-                    y: y,
-                    playerId: playerId,
-                    health: 100
-                };
+
+                const array = ["base", "barracks", "factory", "airbase"];
+                array.forEach(function (buildingType, index) {
+                    buildingCounter++;
+                    let buildingId = randomNumber() + '' + buildingCounter;
+                    let x;
+                    let y;
+
+                    if (localPlayerCounter == 1) {
+                        if (index == 0) {
+                            x = 100;
+                            y = 100;
+                        } else if (index == 1) {
+                            x = 250;
+                            y = 100;
+                        } else if (index == 2) {
+                            x = 250;
+                            y = 250;
+                        } else if (index == 3) {
+                            x = 100;
+                            y = 250;
+                        }
+                    } else if (localPlayerCounter == 2) {
+
+                    } else if (localPlayerCounter == 3) {
+                    }
+
+                    gameData[gameId].buildings[buildingId] = {
+                        x: x,
+                        y: y,
+                        type: buildingType,
+                        playerId: playerId,
+                        health: 100
+                    };
+                });
             }
 
             for (i = 0; i < 150; i++) {
