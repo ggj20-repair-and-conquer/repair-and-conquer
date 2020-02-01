@@ -221,6 +221,11 @@ export default class GameScene extends Phaser.Scene {
 
         this.input.on('pointerdown', (pointer) => {
             if (pointer.leftButtonDown()) {
+                if (this.rectGraphics !== null && typeof this.rectGraphics !== typeof undefined) {
+                    this.rectGraphics.destroy();
+                    this.selectedUnits = [];
+                }
+
                 this.rectGraphics = this.add.graphics();
                 this.selectedUnits = [];
 

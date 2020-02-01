@@ -14,14 +14,14 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.level = 1;
         this.armor = 0;
         /*
-        unit State
-        0:none
-        1:Idle
-        2:moving
-        3:attacking
-        4:movetoattack
-        5:dying
-        default 0
+         * unit States
+         * 0:none
+         * 1:Idle
+         * 2:moving
+         * 3:attacking
+         * 4:movetoattack
+         * 5:dying
+         * default 0
          */
         this.state = 0;
         this.width = 30;
@@ -49,15 +49,17 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.targetY = y;
     }
 
-    startMove(w, x, y){
-        this.setTarget(x,y);
+    startMove(w, x, y) {
+        this.setTarget(x, y);
         this.state = 2;
         w.physics.moveTo(this, x, y, this.speed);
     }
-    interpPosition(x,y){
+
+    interpPosition(x, y) {
         //for now
-        this.setPosition(x,y);
+        this.setPosition(x, y);
     }
+
     stopAction() {
         this.body.reset(this.x, this.y);
         this.state = 1;
