@@ -31,8 +31,9 @@ export default class GameScene extends Phaser.Scene {
 
     socketHandling() {
         socket.sendToServer({
-            type: 'initGame',
-            gameId: socket.gameData.gameId
+            type: 'updateGame',
+            gameId: socket.gameData.gameId,
+            playerId: socket.gameData.playerId
         });
 
         let that = this;
@@ -40,12 +41,25 @@ export default class GameScene extends Phaser.Scene {
         socket.getFromServer(function(data) {
             if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
-
-                    let buildingSprite = that.physics.add.sprite(data.buildings[buildingId].x, data.buildings[buildingId].y, 'building');
-                    that.physics.world.enable(buildingSprite);
+                    let baseSprite = that.physics.add.sprite(0, 0, 'base');
+                    var baseText = that.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
+                    var baseContainer = that.add.container(data.buildings[buildingId].x, data.buildings[buildingId].y, [baseText, baseSprite]);
+                    that.physics.world.enable(baseContainer);
                 }
+
+                //data.player.money
             }
         });
+
+        setInterval(() => {
+            socket.sendToServer({
+                type: 'updateGame',
+                gameId: socket.gameData.gameId,
+                playerId: socket.gameData.playerId
+            });
+        }, 2000);
+
+
     }
 
     /**
