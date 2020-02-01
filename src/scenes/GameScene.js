@@ -40,6 +40,7 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('barracks', 'assets/barracks.png');
         this.load.image('airbase', 'assets/airbase.png');
 
+        this.load.image('dialog_small', 'assets/buttons/dialog_small.png');
 
         this.load.image('soldier', 'assets/soldier.png');
         this.load.image('tank', 'assets/tank.png');
@@ -73,9 +74,19 @@ export default class GameScene extends Phaser.Scene {
             } else if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
                     let baseSprite = this.physics.add.sprite(0, 0, data.buildings[buildingId].type);
+                    baseSprite.setInteractive();
+                    baseSprite.on('pointerdown', function(){
+
+                    });
+
                     var baseText = this.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
-                    var baseContainer = this.add.container(data.buildings[buildingId].x, data.buildings[buildingId].y, [baseText, baseSprite]);
+                    var baseContainer = this.add.container(
+                        data.buildings[buildingId].x,
+                        data.buildings[buildingId].y,
+                        [baseText, baseSprite]
+                    );
                     this.physics.world.enable(baseContainer);
+
                 }
 
                 this.moneyText.text = '$ ' + data.player.money;
@@ -175,13 +186,17 @@ export default class GameScene extends Phaser.Scene {
          * Camera
          */
         this.physics.world.setBounds(0, 0, 10000, 10000);
-        this.minimap = this.cameras.add(1700-300, 900-400, 150, 150).setZoom(0.05).setName('mini');
+        this.minimap = this.cameras.add(0, 720, 180, 180).setZoom(0.05).setName('mini');
         this.minimap.setBackgroundColor(0x3e4f3c);
-        this.minimap.scrollX = 1400;
-        this.minimap.scrollY = 1400;
+        this.minimap.scrollX = this.map.widthInPixels/2;
+        this.minimap.scrollY = this.map.heightInPixels/2;
         // Ignore party of the map to improve performance
+
         this.minimap.ignore(this.worldTileSet);
         this.minimap.ignore(this.GroundLayer1);
+        this.minimap.ignore(this.GrassLayer);
+        this.minimap.ignore(this.ObjectLayer);
+
         // Create a rectangle as the view border in the minimap which we move in update()
         this.minimapRect = new Phaser.Geom.Rectangle(
             0 - 10,
@@ -318,6 +333,7 @@ export default class GameScene extends Phaser.Scene {
             stroke: '#000',
             fontWeight: 'bold'
         });
+        this.minimap.ignore(this.moneyText);
 
         // This stay be at the end
         this.socketHandling()
