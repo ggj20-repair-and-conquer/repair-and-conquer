@@ -58,7 +58,22 @@ export default class CreditsScene extends Phaser.Scene {
           this.scene.start('Menu');
         }, this);
        
-        let attributionText = '\nThank you for playing ';
+        let attributionText = '\nThank you for playing ' +
+            '\n\nSources for sprites used in the game: \n' +
+            'https://opengameart.org/\n' +
+            'https://www.freepik.com/ Designed by macrovector\n' +
+            '\n' +
+            'Music and sounds: \n' +
+            'https://filmmusic.io "Gothamlicious" by Kevin MacLeod (https://incompetech.com)\n' +
+            'https://freesfx.co.uk\n' +
+            'http://soundbible.com\n' +
+            'https://freesound.org\n' +
+            'https://freesound.org/people/EFlexMusic/sounds/396270/\n' +
+            'https://freesound.org/people/LittleRobotSoundFactory/sounds/270403/\n' +
+            'https://freesound.org/people/rezyma/sounds/475148/\n' +
+            'https://freesound.org/people/theuncertainman/sounds/402020/\n' +
+            'https://freesound.org/people/josecruz98/sounds/393019/\n' +
+            'https://freesound.org/people/Ashowal/sounds/171222/';
         this.add.text(680, 40, attributionText, attributionStyle);
     }
 };
