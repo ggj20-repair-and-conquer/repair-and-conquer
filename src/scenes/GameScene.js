@@ -136,7 +136,10 @@ export default class GameScene extends Phaser.Scene {
          * Camera
          */
         this.physics.world.setBounds(0, 0, 10000, 10000);
-
+        this.minimap = this.cameras.add(1700-300, 900-300, 300, 300).setZoom(0.05).setName('mini');
+        this.minimap.setBackgroundColor(0x002244);
+        this.minimap.scrollX = 2800;
+        this.minimap.scrollY = 2800;
         /*
          * Mouse controller
          */
