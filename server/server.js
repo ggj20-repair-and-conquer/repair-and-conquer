@@ -128,7 +128,7 @@ wss.on('connection', function connection(ws) {
             let currentTime = new Date().getTime();
             let delta = currentTime - gameData[gameId].players[playerId].lastupdate;
             gameData[gameId].players[playerId].lastupdate = currentTime;
-            gameData[gameId].players[playerId].money += Math.round((delta / 100);
+            gameData[gameId].players[playerId].money += Math.round(delta / 100);
 
             sendToClient(
                 ws,
