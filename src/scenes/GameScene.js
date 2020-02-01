@@ -34,8 +34,8 @@ export default class GameScene extends Phaser.Scene {
         /**
          * Load TileImages and TileSets
          */
-        this.load.image("tiles", "assets/tilesets/overworld_tileset_grass.png");
-        this.load.tilemapTiledJSON("map", "assets/tilemaps/mapTemplate.json");
+        this.load.image("tiles", "assets/tilesets/mountain_landscape.png");
+        this.load.tilemapTiledJSON("map", "assets/tilemaps/mountainMapTemplate.json");
         // @todo Dummy for the HUD, replace this
         this.load.image('icon_dummy', 'assets/icons/icon_dummy.png');
         this.load.audio('hoverSound', 'assets/sounds/hud_hover.wav');
@@ -90,27 +90,26 @@ export default class GameScene extends Phaser.Scene {
         /*
          * MAP SETTINGS
          */
-        const mapScale = 2;
+        /**
+         * Map Config
+         */
+        const mapScale = 1;
+
         const map = this.make.tilemap({ key: "map" });
         map.setCollisionByProperty({ collides: true });
-        const worldTileSet = map.addTilesetImage("grass_biome", "tiles");
-      
+
+        // Tileset Config
+        const worldTileSet = map.addTilesetImage("mountain_landscape", "tiles");
+
         /**
          * Create Map with Objects
          */
-        const worldLayer = map.createDynamicLayer("World", worldTileSet, 0, 0).setScale(mapScale);
+        // Map World Layer
+        const worldLayer = map.createStaticLayer("World", worldTileSet, 0, 0).setScale(mapScale);
         const collisionLayer = map.createBlankDynamicLayer("Collision", worldTileSet, 0, 0).setScale(mapScale);
 
-        // File with Assets should be in another file
-        const testHill = [
-          [1, 1, 1, 1, 91, 80, 80, 92],
-          [1, 1, 91, 80, 81, 108, 96, 67],
-          [139, 92, 144, 120, 96, 91, 80, 81],
-          [1, 142, 1, 108, 108, 144, 1, 1]
-        ];
-
         // Add all map objects to map TODO: coords from server and loop
-        collisionLayer.putTilesAt(testHill, 20, 20);
+        //collisionLayer.putTilesAt(testHill, 20, 20);
 
         /**
          * Camera
