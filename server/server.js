@@ -5,6 +5,7 @@ let gameData = {};
 let gameCounter = 0;
 let playerCounter = 0;
 let buildingCounter = 0;
+let unitCounter = 0;
 
 function sendToClient(client, data) {
     client.send(JSON.stringify(data));
@@ -13,6 +14,10 @@ function sendToClient(client, data) {
 function randomNumber()
 {
     return Math.floor(100000 + Math.random() * 900000);
+}
+
+function randomNumberRange(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
 }
 
 wss.on('connection', function connection(ws) {
@@ -26,8 +31,10 @@ wss.on('connection', function connection(ws) {
             gameData[gameId] = {
                 name: msgObject.name,
                 players: {},
+                units: {},
                 chat: [],
                 started: false,
+                map: [],
             };
 
             sendToClient(ws, {type: 'createGame', id: gameId});
@@ -117,6 +124,10 @@ wss.on('connection', function connection(ws) {
                 };
             }
 
+            for (i = 0; i < 150; i++) {
+                gameData[gameId].map.push(['hill', randomNumberRange(1, 160), randomNumberRange(1, 160)]);
+            }
+
             wss.clients.forEach(function each(client) {
                 if (gameData[gameId].players[client.playerId]) {
                     sendToClient(client, {type: 'startGame'});
@@ -140,6 +151,32 @@ wss.on('connection', function connection(ws) {
                     }
                 }
             );
+        } else if (msgObject.type == 'initGame') {
+            let gameId = msgObject.gameId;
+            sendToClient(
+                ws,
+                {
+                    type: 'initGame',
+                    map: gameData[gameId].map
+                }
+            );
+        } else if (msgObject.type == 'build') {
+            let gameId = msgObject.gameId;
+            let playerId = msgObject.playerId;
+
+            unitCounter++;
+            let unitId = randomNumber() + '' + unitCounter;
+
+            gameData[gameId].units[unitId] = {
+                x: 100,
+                y: 100,
+                playerId: playerId,
+                health: 100
+            };
+
+            wss.clients.forEach(function each(client) {
+                sendToClient(client, {type: 'updateUnits', units: gameData[gameId].units});
+            });
         }
     }).on('close', function close() {
 

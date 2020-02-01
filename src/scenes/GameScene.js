@@ -1,5 +1,6 @@
 import 'phaser'
 import {Unit} from "../classes/units";
+import config from '../config/config.js';
 
 export default class GameScene extends Phaser.Scene {
 
@@ -12,7 +13,7 @@ export default class GameScene extends Phaser.Scene {
 
     init() {
         this.aim = null;
-        this.lockMovement = false;
+        this.lockMovement = true;
         this.selector = {
             startX: 0,
             startY: 0,
@@ -34,14 +35,22 @@ export default class GameScene extends Phaser.Scene {
         /**
          * Load TileImages and TileSets
          */
-        this.load.image("tiles", "assets/tilesets/overworld_tileset_grass.png");
-        this.load.tilemapTiledJSON("map", "assets/tilemaps/mapTemplate.json");
+        this.load.image("tiles", "assets/tilesets/mountain_landscape.png");
+        this.load.tilemapTiledJSON("map", "assets/tilemaps/mountainMapTemplate.json");
         // @todo Dummy for the HUD, replace this
         this.load.image('icon_dummy', 'assets/icons/icon_dummy.png');
+        this.load.image('icon_repair', 'assets/icons/icon_repair.png');
+        this.load.image('icon_damage', 'assets/icons/icon_damage.png');
+        this.load.image('icon_money', 'assets/icons/icon_treasure.png');
         this.load.audio('hoverSound', 'assets/sounds/hud_hover.wav');
     }
 
     socketHandling() {
+        socket.sendToServer({
+            type: 'initGame',
+            gameId: socket.gameData.gameId,
+            playerId: socket.gameData.playerId
+        });
         socket.sendToServer({
             type: 'updateGame',
             gameId: socket.gameData.gameId,
@@ -51,15 +60,30 @@ export default class GameScene extends Phaser.Scene {
         let that = this;
 
         socket.getFromServer(function(data) {
-            if (data.type == 'updateGame') {
+            if (data.type == 'initGame') {
+                for (var m of data.map) {
+                    that.collisionLayer.putTilesAt(config.map[m[0]], m[1], m[2]);
+                }
+            } else if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
                     let baseSprite = that.physics.add.sprite(0, 0, 'base');
                     var baseText = that.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
                     var baseContainer = that.add.container(data.buildings[buildingId].x, data.buildings[buildingId].y, [baseText, baseSprite]);
                     that.physics.world.enable(baseContainer);
                 }
+            } else if (data.type == 'updateUnits') {
+                for (let unitId in data.units) {
+                    let unitX = data.units[unitId].x;
+                    let unitY = data.units[unitId].y;
 
-                console.log(data.player.money);
+                    if (that.units[unitId]) {
+                        that.units[unitId].x = unitX;
+                        that.units[unitId].y = unitY;
+                    } else {
+                        that.units[unitId] = new Unit(that, unitX, unitY, '');
+                        that.add.existing(that.units[unitId]);
+                    }
+                }
             }
         });
 
@@ -90,27 +114,23 @@ export default class GameScene extends Phaser.Scene {
         /*
          * MAP SETTINGS
          */
-        const mapScale = 2;
+        /**
+         * Map Config
+         */
+        const mapScale = 1;
+
         const map = this.make.tilemap({ key: "map" });
         map.setCollisionByProperty({ collides: true });
-        const worldTileSet = map.addTilesetImage("grass_biome", "tiles");
-      
+
+        // Tileset Config
+        const worldTileSet = map.addTilesetImage("mountain_landscape", "tiles");
+
         /**
          * Create Map with Objects
          */
+        // Map World Layer
         const worldLayer = map.createDynamicLayer("World", worldTileSet, 0, 0).setScale(mapScale);
-        const collisionLayer = map.createBlankDynamicLayer("Collision", worldTileSet, 0, 0).setScale(mapScale);
-
-        // File with Assets should be in another file
-        const testHill = [
-          [1, 1, 1, 1, 91, 80, 80, 92],
-          [1, 1, 91, 80, 81, 108, 96, 67],
-          [139, 92, 144, 120, 96, 91, 80, 81],
-          [1, 142, 1, 108, 108, 144, 1, 1]
-        ];
-
-        // Add all map objects to map TODO: coords from server and loop
-        collisionLayer.putTilesAt(testHill, 20, 20);
+        this.collisionLayer = map.createBlankDynamicLayer("Collision", worldTileSet, 0, 0).setScale(mapScale);
 
         /**
          * Camera
@@ -208,18 +228,6 @@ export default class GameScene extends Phaser.Scene {
             }
         }, this);
 
-        /*
-         * Unit Controller
-         */
-
-        for ( let i = 0; i  < 10; i++) {
-            let unit = new Unit(this, 500+i*100, 500, '');
-            this.add.existing(unit);
-            this.units.push(unit);
-        }
-
-       // this.physics.add.collider(this.units, worldLayer);
-
         this.input.on('pointerdown', (pointer) => {
            if (pointer.rightButtonDown()) {
                this.controlledUnits.forEach((unit) => {
@@ -239,13 +247,18 @@ export default class GameScene extends Phaser.Scene {
         // Generate Hud data and create initial Hud
         // @todo Replace data with data from the server or hard coded controls
         let data = [{
-            icon: 'icon_dummy',
-            text: '$ Rep Unit',
+            icon: 'icon_repair',
+            text: 'Build Soldier',
             clickCallback: () => {
-                alert('Clicked Item 1');
+                socket.sendToServer({
+                    type: 'build',
+                    unit: 'soldier',
+                    gameId: socket.gameData.gameId,
+                    playerId: socket.gameData.playerId
+                });
             }
         },{
-            icon: 'icon_dummy',
+            icon: 'icon_damage',
             text: '$ Dmg Unit',
             clickCallback: () => {
                 alert('Clicked Item 2');
@@ -263,7 +276,7 @@ export default class GameScene extends Phaser.Scene {
                 alert('Clicked Item 4');
             }
         },{
-            icon: 'icon_dummy',
+            icon: 'icon_money',
             text: '$$$ Money',
             clickCallback: () => {
                 alert('Clicked Item 5. $$$DOLLARS$$$');
@@ -296,17 +309,19 @@ export default class GameScene extends Phaser.Scene {
                 this.aim.x -= deltaScroll;
             }
 
-            if (mouseY > this.cameras.main.midPoint.y + yThreshold) {
+
+            if(mouseY > this.cameras.main.midPoint.y + yThreshold - 100) {
                 this.cameras.main.scrollY += deltaScroll;
                 this.aim.y += deltaScroll;
             } else if (mouseY < this.cameras.main.midPoint.y - yThreshold) {
+                // Move camera upwards
                 this.cameras.main.scrollY -= deltaScroll;
                 this.aim.y -= deltaScroll;
             }
 
             // Update hudTable coordinates since this.cameras.main.x and y is 0 always and we therefore cannot attach to it.
             this.hudTable.x = this.cameras.main.scrollX + (1700/2);
-            this.hudTable.y = this.cameras.main.scrollY + 810;
+            this.hudTable.y = this.cameras.main.scrollY + 850;
         }
     }
 
@@ -322,23 +337,24 @@ export default class GameScene extends Phaser.Scene {
         var rexUI = this.rexUI;
         var data = data;
         let hoverSound = this.sound.add('hoverSound');
+
         let hudTable = rexUI.add.gridTable({
             x: this.cameras.main.scrollX + (1700/2),
-            y: this.cameras.main.scrollY + 810,
-            background: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0x2D3C2C, 0.8),
+            y: this.cameras.main.scrollY + 850,
+            background: rexUI.add.roundRectangle(0, 0, 20, 10, 0, 0x4e634c),
             table: {
-                width: 1000,
-                height: 120,
+                width: 1700,
+                height: 100,
                 cellWidth: 200,
-                cellHeight: 120,
-                columns: 5,
+                cellHeight: 100,
+                columns: 8,
             },
             space: {
-                left: 10,
-                right: 10,
-                top: 10,
-                bottom: 10,
-                table: 10,
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                table: 0,
             },
             items: data,
             createCellContainerCallback: function (cell) {
@@ -350,7 +366,7 @@ export default class GameScene extends Phaser.Scene {
                 return scene.rexUI.add.label({
                     width: width,
                     height: height,
-                    background: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, 0x455a43),
+                    background: rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, 0x455a43),
                     icon: iconImg,
                     text: scene.add.text(0, 0, item.text),
                     space: {
@@ -375,8 +391,6 @@ export default class GameScene extends Phaser.Scene {
                 .setDepth(0);
             this.hudHovered = false;
         }, this).on('cell.click', function (cellContainer, cellIndex) {
-            // Call the callback we get via data
-            console.log(data);
             data[cellIndex].clickCallback();
         }, this);
 
