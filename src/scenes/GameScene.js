@@ -6,11 +6,18 @@ export default class GameScene extends Phaser.Scene {
     }
 
     init() {
-        this.player = null;
-        this.players = new Array();
         this.aim = null;
-        this.pointerToggle = false;
         this.lockMovement = false;
+        this.selector = {
+            startX: 0,
+            startY: 0,
+            endX: 0,
+            endY: 0,
+            visible: false,
+        };
+
+        this.rect = null;
+        this.rectGraphics = null;
     }
 
     /**
@@ -19,7 +26,26 @@ export default class GameScene extends Phaser.Scene {
     preload() {
         // load images
         this.load.image("tiles", "assets/tilesets/overworld_tileset_grass.png");
-        this.load.tilemapTiledJSON("map", "assets/tilemaps/map.json");
+        this.load.tilemapTiledJSON("map", "assets/tilemaps/mapTemplate.json");
+    }
+
+    socketHandling() {
+        socket.sendToServer({
+            type: 'initGame',
+            gameId: socket.gameData.gameId
+        });
+
+        let that = this;
+
+        socket.getFromServer(function(data) {
+            if (data.type == 'updateGame') {
+                for (let buildingId in data.buildings) {
+
+                    let buildingSprite = that.physics.add.sprite(data.buildings[buildingId].x, data.buildings[buildingId].y, 'building');
+                    that.physics.world.enable(buildingSprite);
+                }
+            }
+        });
     }
 
     /**
@@ -55,7 +81,63 @@ export default class GameScene extends Phaser.Scene {
         this.input.on('pointermove', (pointer) => {
             this.aim.x = this.input.activePointer.worldX;
             this.aim.y = this.input.activePointer.worldY;
+
+            if (this.selector.visible) {
+                this.selector.endX = this.aim.x;
+                this.selector.endY = this.aim.y;
+
+                this.rect.setEmpty();
+
+                this.rect.setTo(
+                    this.selector.startX,
+                    this.selector.startY,
+                    this.selector.endX - this.selector.startX,
+                    this.selector.endY - this.selector.startY
+                );
+
+
+                this.rectGraphics.destroy();
+                this.rectGraphics = this.add.graphics();
+                this.rectGraphics.fillStyle(0xffffff, 0.1);
+                this.rectGraphics.lineStyle(2, 0xff0000, 1);
+                this.rectGraphics.fillRectShape(this.rect);
+                this.rectGraphics.strokeRectShape(this.rect);
+            }
         }, this);
+
+        /*
+         * Selector for units
+         */
+
+        this.input.on('pointerdown', (pointer) => {
+            if (pointer.leftButtonDown()) {
+                this.rectGraphics = this.add.graphics();
+
+                this.selector.startX = this.aim.x;
+                this.selector.startY = this.aim.y;
+                this.selector.endX = 1;
+                this.selector.endY = 1;
+                this.selector.visible = true;
+
+                this.rect = new Phaser.Geom.Rectangle(
+                    this.selector.startX,
+                    this.selector.startY,
+                    0,
+                    0,
+                );
+            }
+        }, this);
+
+        this.input.on('pointerup', (pointer) => {
+            if (pointer.leftButtonReleased()) {
+                if (this.rect !== null) {
+                    this.selector.visible = false;
+                    this.rectGraphics.destroy();
+                }
+            }
+        }, this);
+
+        this.socketHandling()
     }
 
     /*

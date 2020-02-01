@@ -12,13 +12,16 @@ export default class CreateGameScene extends Phaser.Scene {
         this.load.image('txt_background', 'assets/buttons/btn_grey.png');
     }
 
-    createGame() {
-        let text = this.keyFocus.text;
+    createGame(gameRoomText, playerNameText) {
+        if (gameRoomText.text == '' || playerNameText.text == '') {
+            return;
+        }
+
         let scene = this.scene;
 
         socket.sendToServer({
             type: 'createGame',
-            name: text,
+            name: gameRoomText.text,
         });
 
         socket.getFromServer(function(data) {
@@ -26,33 +29,86 @@ export default class CreateGameScene extends Phaser.Scene {
                 socket.sendToServer({
                     type: 'joinGame',
                     gameId: data.id,
-                    name: text,
+                    playerName: playerNameText.text,
                 });
             } else if (data.type == 'joinGame') {
                 socket.gameData.gameId = data.gameId;
                 socket.gameData.playerId = data.playerId;
-                scene.start('GameList');
+                scene.start('GameLobby');
             }
         });
     }
 
     create() {
-        this.add.image(820, 400, 'txt_background');
-        const btnEnterPlayer = this.add.text(700, 300, 'Player name', {
+        /*
+         * game-name
+         */
+        const gameText = this.add.text(700, 100, 'Game room name', {
             font: '32px Courier',
             fill: '#ffffff'
         });
+        gameText.setInteractive();
+        gameText.on('pointerdown', () => {
+            this.keyFocus = gameRoomText;
+        }, this);
 
-        this.keyFocus = this.add.text(590, 380, '', {
+        const gameBackground = this.add.image(820, 200, 'txt_background');
+        gameBackground.setInteractive();
+        gameBackground.on('pointerdown', () => {
+            this.keyFocus = gameRoomText;
+        }, this);
+
+        /*
+         * player-name
+         */
+        const playerText = this.add.text(700, 300, 'Player name', {
+            font: '32px Courier',
+            fill: '#ffffff'
+        });
+        playerText.setInteractive();
+        playerText.on('pointerdown', () => {
+            this.keyFocus = playerNameText;
+        }, this);
+
+        const playerBackground = this.add.image(820, 400, 'txt_background')
+        playerBackground.setInteractive();
+        playerBackground.on('pointerdown', () => {
+            this.keyFocus = playerNameText;
+        }, this);
+
+        /*
+         * back button
+         */
+        const btnBack = this.add.image(400, 700, 'btn_back');
+        btnBack.setInteractive();
+        btnBack.on('pointerdown', () => {
+            this.scene.start('Menu');
+        }, this);
+
+        /*
+         * create button
+         */
+        const btnCreate = this.add.image(1000, 700, 'btn_create');
+        btnCreate.setInteractive();
+        btnCreate.on('pointerdown', () => {
+            this.createGame(gameRoomText, playerNameText);
+        }, this);
+
+        let gameRoomText = this.add.text(590, 180, '', {
             font: '32px Courier',
             fill: '#ffff00'
         });
 
+        let playerNameText = this.add.text(590, 380, '', {
+            font: '32px Courier',
+            fill: '#ffff00'
+        });
+
+        this.keyFocus = gameRoomText;
+
         this.input.keyboard.on('keydown', function (event) {
             if (event.keyCode === 8 && this.keyFocus.text.length > 0) {
                 this.keyFocus.text = this.keyFocus.text.substr(0, this.keyFocus.text.length - 1);
-            } else if (event.keyCode == 13) {
-                this.createGame();
             } else if (event.keyCode === 32 || (event.keyCode >= 48 && event.keyCode < 90)) {
                 this.keyFocus.text += event.key;
             }
