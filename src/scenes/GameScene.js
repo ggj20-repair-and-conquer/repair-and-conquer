@@ -1,5 +1,7 @@
 import 'phaser'
 
+import {Unit} from "../classes/units";
+
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super('Game');
@@ -18,6 +20,8 @@ export default class GameScene extends Phaser.Scene {
 
         this.rect = null;
         this.rectGraphics = null;
+        this.units = [];
+        this.controlledUnits = [];
     }
 
     /**
@@ -36,6 +40,7 @@ export default class GameScene extends Phaser.Scene {
      */
     create() {
         // ActionKeys
+        game.input.mouse.disableContextMenu();
         this.actionsKeys = this.input.keyboard.addKeys({
             'SPACE': Phaser.Input.Keyboard.KeyCodes.SPACE,
         });
@@ -43,22 +48,20 @@ export default class GameScene extends Phaser.Scene {
         this.input.keyboard.on('keydown_SPACE', (event) => {
             this.lockMovement = !this.lockMovement;
         });
-        // Map Tiles
+        /*
+         * MAP SETTINGS
+         */
         const mapScale = 2;
         const map = this.make.tilemap({ key: "map" });
-        // Collide Option
         map.setCollisionByProperty({ collides: true });
-        // Tileset Config
         const tileset = map.addTilesetImage("grass_biome", "tiles");
-        // Map World Layer
         const worldLayer = map.createStaticLayer("world", tileset, 0, 0).setScale(mapScale);
-        // Create world bounds
         this.physics.world.setBounds(0, 0, 10000, 10000);
-        game.input.mouse.disableContextMenu();
 
+        /*
+         * Mouse controller
+         */
         this.aim = this.physics.add.sprite(600, 700, 'aim');
-
-        // Set Player & Aim Properties
         this.aim.setOrigin(0.5, 0.5).setDisplaySize(15, 15).setCollideWorldBounds(true);
 
         this.input.on('pointermove', (pointer) => {
@@ -95,6 +98,7 @@ export default class GameScene extends Phaser.Scene {
         this.input.on('pointerdown', (pointer) => {
             if (pointer.leftButtonDown()) {
                 this.rectGraphics = this.add.graphics();
+                this.controlledUnits = [];
 
                 this.selector.startX = this.aim.x;
                 this.selector.startY = this.aim.y;
@@ -115,10 +119,36 @@ export default class GameScene extends Phaser.Scene {
             if (pointer.leftButtonReleased()) {
                 if (this.rect !== null) {
                     this.selector.visible = false;
+                    for (let i = 0; i < this.units.length; i++) {
+                        if (this.rect.contains(this.units[i].x, this.units[i].y)) {
+                            this.controlledUnits.push(i);
+                        }
+                    }
                     this.rectGraphics.destroy();
                 }
             }
         }, this);
+
+        /*
+         * Unit Controller
+         */
+
+        for ( let i = 0; i  < 10; i++) {
+            let unit = new Unit(this, 500+i*100, 500, '');
+            this.add.existing(unit);
+            this.units.push(unit);
+        }
+
+       // this.physics.add.collider(this.units, worldLayer);
+
+        this.input.on('pointerdown', (pointer) => {
+           if (pointer.rightButtonDown()) {
+               this.controlledUnits.forEach((i) => {
+                   this.physics.moveTo(this.units[i], this.aim.x, this.aim.y);
+               });
+
+           }
+        });
     }
 
     /*
