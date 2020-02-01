@@ -1,5 +1,6 @@
 import 'phaser'
 import {Unit} from "../classes/units";
+import config from '../config/config.js';
 
 export default class GameScene extends Phaser.Scene {
 
@@ -43,6 +44,11 @@ export default class GameScene extends Phaser.Scene {
 
     socketHandling() {
         socket.sendToServer({
+            type: 'initGame',
+            gameId: socket.gameData.gameId,
+            playerId: socket.gameData.playerId
+        });
+        socket.sendToServer({
             type: 'updateGame',
             gameId: socket.gameData.gameId,
             playerId: socket.gameData.playerId
@@ -51,7 +57,11 @@ export default class GameScene extends Phaser.Scene {
         let that = this;
 
         socket.getFromServer(function(data) {
-            if (data.type == 'updateGame') {
+            if (data.type == 'initGame') {
+                for (var m of data.map) {
+                    that.collisionLayer.putTilesAt(config.map[m[0]], m[1], m[2]);
+                }
+            } else if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
                     let baseSprite = that.physics.add.sprite(0, 0, 'base');
                     var baseText = that.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
@@ -105,11 +115,8 @@ export default class GameScene extends Phaser.Scene {
          * Create Map with Objects
          */
         // Map World Layer
-        const worldLayer = map.createStaticLayer("World", worldTileSet, 0, 0).setScale(mapScale);
-        const collisionLayer = map.createBlankDynamicLayer("Collision", worldTileSet, 0, 0).setScale(mapScale);
-
-        // Add all map objects to map TODO: coords from server and loop
-        //collisionLayer.putTilesAt(testHill, 20, 20);
+        const worldLayer = map.createDynamicLayer("World", worldTileSet, 0, 0).setScale(mapScale);
+        this.collisionLayer = map.createBlankDynamicLayer("Collision", worldTileSet, 0, 0).setScale(mapScale);
 
         /**
          * Camera

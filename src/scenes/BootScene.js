@@ -16,7 +16,7 @@ export default class BootScene extends Phaser.Scene {
         backgroundSound.play();
 
         this.time.delayedCall(100, () => {
-            this.scene.start('Game');
+            this.scene.start('Menu');
         }, [], this);
     }
 };
