@@ -29,6 +29,25 @@ export default class GameScene extends Phaser.Scene {
         this.load.tilemapTiledJSON("map", "assets/tilemaps/map.json");
     }
 
+    socketHandling() {
+        socket.sendToServer({
+            type: 'initGame',
+            gameId: socket.gameData.gameId
+        });
+
+        let that = this;
+
+        socket.getFromServer(function(data) {
+            if (data.type == 'updateGame') {
+                for (let buildingId in data.buildings) {
+
+                    let buildingSprite = that.physics.add.sprite(data.buildings[buildingId].x, data.buildings[buildingId].y, 'building');
+                    that.physics.world.enable(buildingSprite);
+                }
+            }
+        });
+    }
+
     /**
      * Game Start
      */
@@ -117,6 +136,8 @@ export default class GameScene extends Phaser.Scene {
                 }
             }
         }, this);
+
+        this.socketHandling()
     }
 
     /*

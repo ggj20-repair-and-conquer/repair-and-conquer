@@ -4,6 +4,7 @@ const wss = new WebSocket.Server({ port: 9000 });
 let gameData = {};
 let gameCounter = 0;
 let playerCounter = 0;
+let buildingCounter = 0;
 
 function sendToClient(client, data) {
     client.send(JSON.stringify(data));
@@ -84,12 +85,42 @@ wss.on('connection', function connection(ws) {
         } else if (msgObject.type == 'startGame') {
             let gameId = msgObject.gameId;
             gameData[gameId].started = true;
+            gameData[gameId].buildings = {};
+            let localPlayerCounter = 0;
+
+            for (let playerId in gameData[gameId].players) {
+                let buildingId = randomNumber() + '' + buildingCounter;
+                buildingCounter++;
+                localPlayerCounter++;
+                let x;
+                let y;
+
+                if (localPlayerCounter == 1) {
+                    x = 50;
+                    y = 50;
+                } else if (localPlayerCounter == 2) {
+                    x = 500;
+                    y = 500;
+                } else if (localPlayerCounter == 3) {
+                    x = 700;
+                    y = 700;
+                }
+
+                gameData[gameId].buildings[buildingId] = {
+                    x: x,
+                    y: y,
+                    playerId: playerId
+                };
+            }
 
             wss.clients.forEach(function each(client) {
                 if (gameData[gameId].players[client.playerId]) {
                     sendToClient(client, {type: 'startGame'});
                 }
             });
+        } else if (msgObject.type == 'initGame') {
+            let gameId = msgObject.gameId;
+            sendToClient(ws, {type: 'updateGame', buildings: gameData[gameId].buildings});
         }
     }).on('close', function close() {
 
