@@ -67,38 +67,38 @@ export default class GameScene extends Phaser.Scene {
 
         let that = this;
 
-        socket.getFromServer(function(data) {
+        socket.getFromServer((data) => {
             if (data.type == 'initGame') {
                 for (var m of data.map) {
-                    that.collisionLayer.putTilesAt(config.map[m[0]], m[1], m[2]);
+                    this.collisionLayer.putTilesAt(config.map[m[0]], m[1], m[2]);
                 }
             } else if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
-                    let baseSprite = that.physics.add.sprite(0, 0, data.buildings[buildingId].type);
-                    var baseText = that.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
-                    var baseContainer = that.add.container(data.buildings[buildingId].x, data.buildings[buildingId].y, [baseText, baseSprite]);
-                    that.physics.world.enable(baseContainer);
+                    let baseSprite = this.physics.add.sprite(0, 0, data.buildings[buildingId].type);
+                    var baseText = this.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
+                    var baseContainer = this.add.container(data.buildings[buildingId].x, data.buildings[buildingId].y, [baseText, baseSprite]);
+                    this.physics.world.enable(baseContainer);
                 }
 
-                that.moneyText.text = '$ ' + data.player.money;
+                this.moneyText.text = '$ ' + data.player.money;
             } else if (data.type == 'updateUnits') {
                 for (let unitId in data.units) {
                     let unit = data.units[unitId];
 
-                    if (that.units[unitId]) {
+                    if (this.units[unitId]) {
                         //that.units[unitId].x = unit.x;
                         //that.units[unitId].y = unit.y;
                     } else {
-                        that.units[unitId] = new Unit(that, unit.x, unit.y, unit.type);
-                        that.units[unitId].playerId = unit.playerId;
-                        that.units[unitId].unitType = unit.type;
-                        that.add.existing(that.units[unitId]);
+                        this.units[unitId] = new Unit(this, unit.x, unit.y, unit.type);
+                        this.units[unitId].playerId = unit.playerId;
+                        this.units[unitId].unitType = unit.type;
+                        this.add.existing(this.units[unitId]);
                     }
                 }
             } else if (data.type == 'updateUnitPositions') {
                 for (var position of data.positions) {
-                    that.units[position[0]].x = position[1];
-                    that.units[position[0]].y = position[2];
+                    this.units[position[0]].x = position[1];
+                    this.units[position[0]].y = position[2];
                 }
             }
         });
@@ -106,9 +106,9 @@ export default class GameScene extends Phaser.Scene {
         setInterval(() => {
             let unitPositions = [];
 
-            for (let unitId in that.units) {
-                if (that.units[unitId].playerId == socket.gameData.playerId) {
-                    unitPositions.push([unitId, that.units[unitId].x, that.units[unitId].y])
+            for (let unitId in this.units) {
+                if (this.units[unitId].playerId == socket.gameData.playerId) {
+                    unitPositions.push([unitId, this.units[unitId].x, this.units[unitId].y])
                 }
             }
 
