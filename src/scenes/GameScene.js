@@ -69,9 +69,6 @@ export default class GameScene extends Phaser.Scene {
 
         socket.getFromServer(function(data) {
             if (data.type == 'initGame') {
-                for (var m of data.map) {
-                    that.collisionLayer.putTilesAt(config.map[m[0]], m[1], m[2]);
-                }
             } else if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
                     let baseSprite = that.physics.add.sprite(0, 0, data.buildings[buildingId].type);
@@ -145,9 +142,6 @@ export default class GameScene extends Phaser.Scene {
         });
       
         /*
-         * MAP SETTINGS
-         */
-        /**
          * Map Config
          */
         const mapScale = 1;
