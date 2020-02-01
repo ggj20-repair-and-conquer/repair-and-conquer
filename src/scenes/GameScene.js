@@ -29,6 +29,8 @@ export default class GameScene extends Phaser.Scene {
         this.load.tilemapTiledJSON("map", "assets/tilemaps/map.json");
     }
 
+
+
     /**
      * Game Start
      */
