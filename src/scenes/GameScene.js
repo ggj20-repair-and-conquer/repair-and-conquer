@@ -1,6 +1,7 @@
 import 'phaser'
 
 export default class GameScene extends Phaser.Scene {
+
     constructor() {
         super('Game');
     }
@@ -24,9 +25,11 @@ export default class GameScene extends Phaser.Scene {
      * Preload Images
      */
     preload() {
-        // load images
+        /**
+         * Load TileImages and TileSets
+         */
         this.load.image("tiles", "assets/tilesets/overworld_tileset_grass.png");
-        this.load.tilemapTiledJSON("map", "assets/tilemaps/map(old).json");
+        this.load.tilemapTiledJSON("map", "assets/tilemaps/mapTemplate.json");
     }
 
     socketHandling() {
@@ -58,14 +61,13 @@ export default class GameScene extends Phaser.Scene {
                 playerId: socket.gameData.playerId
             });
         }, 2000);
-
-
     }
 
     /**
      * Game Start
      */
     create() {
+
         // ActionKeys
         this.actionsKeys = this.input.keyboard.addKeys({
             'SPACE': Phaser.Input.Keyboard.KeyCodes.SPACE,
@@ -74,18 +76,41 @@ export default class GameScene extends Phaser.Scene {
         this.input.keyboard.on('keydown_SPACE', (event) => {
             this.lockMovement = !this.lockMovement;
         });
-        // Map Tiles
+
+        /**
+         * Map Config
+         */
         const mapScale = 2;
+
         const map = this.make.tilemap({ key: "map" });
+
         // Collide Option
         map.setCollisionByProperty({ collides: true });
+
         // Tileset Config
-        const tileset = map.addTilesetImage("grass_biome", "tiles");
+        const worldTileSet = map.addTilesetImage("grass_biome", "tiles");
+
+        /**
+         * Create Map with Objects
+         */
         // Map World Layer
-        const worldLayer = map.createStaticLayer("world", tileset, 0, 0).setScale(mapScale);
+        const worldLayer = map.createDynamicLayer("World", worldTileSet, 0, 0).setScale(mapScale);
+        const collisionLayer = map.createBlankDynamicLayer("Collision", worldTileSet, 0, 0).setScale(mapScale);
 
+        // File with Assets should be in another file
+        const testHill = [
+          [0, 0, 0, 0, 90, 79, 70, 91],
+          [0, 0, 90, 79, 80, 107, 95, 66],
+          [138, 91, 143, 119, 95, 90, 79, 80],
+          [0, 141, 0, 107, 107, 143, 0, 0]
+        ];
 
+        // Add all map objects to map TODO: coords from server and loop
+        collisionLayer.putTilesAt(testHill, 20, 20);
 
+        /**
+         * Camera
+         */
         // Create world bounds
         this.physics.world.setBounds(0, 0, 10000, 10000);
         game.input.mouse.disableContextMenu();
