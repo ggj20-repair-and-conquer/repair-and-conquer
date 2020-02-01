@@ -123,6 +123,7 @@ wss.on('connection', function connection(ws) {
         } else if (msgObject.type == 'updateGame') {
             let gameId = msgObject.gameId;
             let playerId = msgObject.playerId;
+            gameData[gameId].players[playerId].lastupdate = new Date().getTime();
 
             sendToClient(
                 ws,

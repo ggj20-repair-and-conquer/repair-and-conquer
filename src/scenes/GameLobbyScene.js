@@ -48,26 +48,31 @@ export default class GameLobbyScene extends Phaser.Scene {
             } else if (event.keyCode === 32 || (event.keyCode >= 48 && event.keyCode < 90)) {
                 this.keyFocus.text += event.key;
             } else if (event.keyCode == 13) {
-                socket.sendToServer({
-                    type: 'chat',
-                    gameId: socket.gameData.gameId,
-                    playerId: socket.gameData.playerId,
-                    msg: this.keyFocus.text
-                });
-                this.keyFocus.text = '';
+                if (this.keyFocus.text != '') {
+                    clickSound.play();
+                    socket.sendToServer({
+                        type: 'chat',
+                        gameId: socket.gameData.gameId,
+                        playerId: socket.gameData.playerId,
+                        msg: this.keyFocus.text
+                    });
+                    this.keyFocus.text = '';
+                }
             }
         }, this);
 
         const btnBack = this.add.image(400, 750, 'btn_back');
         btnBack.setInteractive();
         btnBack.on('pointerdown', () => {
+            clickSound.play();
             clearInterval(refreshIntervalId);
-            this.scene.start('Menu');
+            this.scene.start('CreateGame');
         }, this);
 
         const btnStartGame = this.add.image(1300, 750, 'btn_start');
         btnStartGame.setInteractive();
         btnStartGame.on('pointerdown', () => {
+            clickSound.play();
             socket.sendToServer({
                 type: 'startGame',
                 gameId: socket.gameData.gameId,
