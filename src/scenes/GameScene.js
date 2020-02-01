@@ -13,7 +13,7 @@ export default class GameScene extends Phaser.Scene {
 
     init() {
         this.aim = null;
-        this.lockMovement = false;
+        this.lockMovement = true;
         this.selector = {
             startX: 0,
             startY: 0,
