@@ -38,6 +38,9 @@ export default class GameScene extends Phaser.Scene {
         this.load.tilemapTiledJSON("map", "assets/tilemaps/mapTemplate.json");
         // @todo Dummy for the HUD, replace this
         this.load.image('icon_dummy', 'assets/icons/icon_dummy.png');
+        this.load.image('icon_repair', 'assets/icons/icon_repair.png');
+        this.load.image('icon_damage', 'assets/icons/icon_damage.png');
+        this.load.image('icon_money', 'assets/icons/icon_treasure.png');
         this.load.audio('hoverSound', 'assets/sounds/hud_hover.wav');
     }
 
@@ -210,13 +213,13 @@ export default class GameScene extends Phaser.Scene {
         // Generate Hud data and create initial Hud
         // @todo Replace data with data from the server or hard coded controls
         let data = [{
-            icon: 'icon_dummy',
+            icon: 'icon_repair',
             text: '$ Rep Unit',
             clickCallback: () => {
                 alert('Clicked Item 1');
             }
         },{
-            icon: 'icon_dummy',
+            icon: 'icon_damage',
             text: '$ Dmg Unit',
             clickCallback: () => {
                 alert('Clicked Item 2');
@@ -234,7 +237,7 @@ export default class GameScene extends Phaser.Scene {
                 alert('Clicked Item 4');
             }
         },{
-            icon: 'icon_dummy',
+            icon: 'icon_money',
             text: '$$$ Money',
             clickCallback: () => {
                 alert('Clicked Item 5. $$$DOLLARS$$$');
