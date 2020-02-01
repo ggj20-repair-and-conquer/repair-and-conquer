@@ -18,10 +18,14 @@ export default class GameListScene extends Phaser.Scene {
     }
 
     joinGame () {
+        if (playerName.text == '') {
+            return;
+        }
+
         socket.sendToServer({
             type: 'joinGame',
             gameId: games[clickedRowIndex].id,
-            playerName: playerNameText.text,
+            playerName: playerName.text,
         });
 
         socket.getFromServer(function(data) {
@@ -80,9 +84,7 @@ export default class GameListScene extends Phaser.Scene {
         txtBackgroundPlayer.setInteractive();
 
         playerNameText = this.add.text(850, 230, 'Enter your name', labelStyle);
-
         playerName = this.add.text(850, 300, '', textStyle);
-
         txtBackgroundPlayer.visible = btnJoin.visible = playerName.visible = playerNameText.visible = false;
 
         // Get keyboard input
