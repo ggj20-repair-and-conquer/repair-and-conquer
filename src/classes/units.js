@@ -8,7 +8,7 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         scene.physics.world.enableBody(this, 0);
 
         this.health = 100;
-        this.speed = 1;
+        this.speed = 200;
         this.level = 1;
         this.armor = 0;
         /*
@@ -38,9 +38,9 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.targetY = y;
     }
 
-    startMove(x, y){
+    startMove(w, x, y){
         this.setTarget(x,y);
-        scene.physics.moveTo(x,y,this.speed);
+        w.physics.moveTo(this, x, y, this.speed);
         this.setState(2);
     }
     interpPosition(x,y){
