@@ -1,8 +1,6 @@
 import 'phaser'
 import {Unit} from "../classes/units";
 
-import {Unit} from "../classes/units";
-
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super('Game');
@@ -82,7 +80,6 @@ export default class GameScene extends Phaser.Scene {
                     this.selector.endY - this.selector.startY
                 );
 
-
                 this.rectGraphics.destroy();
                 this.rectGraphics = this.add.graphics();
                 this.rectGraphics.fillStyle(0xffffff, 0.1);
@@ -147,7 +144,6 @@ export default class GameScene extends Phaser.Scene {
                this.controlledUnits.forEach((i) => {
                    this.physics.moveTo(this.units[i], this.aim.x, this.aim.y);
                });
-
            }
         });
     }
