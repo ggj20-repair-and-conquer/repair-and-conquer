@@ -23,6 +23,9 @@ export default class GameScene extends Phaser.Scene {
         this.rectGraphics = null;
         this.units = [];
         this.selectedUnits = [];
+
+        // The current id of the selected building, null if none selected
+        this.selectedBuilding = null;
     }
 
     /**
@@ -75,9 +78,9 @@ export default class GameScene extends Phaser.Scene {
                 for (let buildingId in data.buildings) {
                     let baseSprite = this.physics.add.sprite(0, 0, data.buildings[buildingId].type);
                     baseSprite.setInteractive();
-                    baseSprite.on('pointerdown', function(){
-
-                    });
+                    baseSprite.on('pointerdown', this.actionButton('do fancy stuff', buildingId, () => {
+                        alert('callback!');
+                    }), this);
 
                     var baseText = this.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
                     var baseContainer = this.add.container(
@@ -393,5 +396,35 @@ export default class GameScene extends Phaser.Scene {
             this.minimapRectGraphics.lineStyle(20, 0xff0000, 1);
             this.minimapRectGraphics.strokeRectShape(this.minimapRect);
         }
+    }
+
+    /**
+     * Adds an action button which shows when clicking on a building.
+     *
+     * @param text The text to write on the button
+     * @param buildingId The buildingId of the building. Used to set which building is selected currently.
+     * @param callback A callback to call on click on the action button.
+     */
+    actionButton(text, buildingId, callback) {
+        return function(pointer){
+            if (this.selectedBuilding === null) {
+                const btnBuild = this.add.image(pointer.x, pointer.y, 'dialog_small').setOrigin(0, 0);
+                const textBuild = this.add.text(pointer.x + 25, pointer.y + 15, text, {
+                    font: '17px Courier',
+                    fill: '#fff',
+                    strokeThickness: 3,
+                    stroke: '#000',
+                    fontWeight: 'bold'
+                });
+                btnBuild.setInteractive();
+                btnBuild.on('pointerdown', () => {
+                    callback();
+                    this.selectedBuilding = null;
+                    btnBuild.destroy();
+                    textBuild.destroy();
+                }, this);
+                this.selectedBuilding = buildingId;
+            }
+        };
     }
 };
