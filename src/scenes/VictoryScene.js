@@ -9,8 +9,9 @@ export default class VictoryScene extends Phaser.Scene {
     preload() {
         this.load.image('win', 'assets/win.png');
     }
-
+    
     create() {
+        victorySound.play();
         const win = this.add.image(config.width/2, config.height/2, 'win');
         win.setInteractive();
         
