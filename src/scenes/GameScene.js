@@ -25,7 +25,7 @@ export default class GameScene extends Phaser.Scene {
         this.rect = null;
         this.rectGraphics = null;
         this.units = [];
-        this.controlledUnits = [];
+        this.selectedUnits = [];
     }
 
     /**
@@ -82,13 +82,33 @@ export default class GameScene extends Phaser.Scene {
                         that.units[unitId] = new Unit(that, unit.x, unit.y, '');
                         that.units[unitId].playerId = unit.playerId;
                         that.units[unitId].unitType = unit.type;
-
-                        console.log(unit);
                         that.add.existing(that.units[unitId]);
                     }
                 }
+            } else if (data.type == 'updateUnitPositions') {
+                for (var position of data.positions) {
+                    that.units[position[0]].x = position[1];
+                    that.units[position[0]].y = position[2];
+                }
             }
         });
+
+        setInterval(() => {
+            let unitPositions = [];
+
+            for (let unitId in that.units) {
+                if (that.units[unitId].playerId == socket.gameData.playerId) {
+                    unitPositions.push([unitId, that.units[unitId].x, that.units[unitId].y])
+                }
+            }
+
+            socket.sendToServer({
+                type: 'updateUnitPositions',
+                gameId: socket.gameData.gameId,
+                playerId: socket.gameData.playerId,
+                positions: unitPositions
+            });
+        }, 50);
 
         setInterval(() => {
             socket.sendToServer({
@@ -183,7 +203,7 @@ export default class GameScene extends Phaser.Scene {
         this.input.on('pointerdown', (pointer) => {
             if (pointer.leftButtonDown()) {
                 this.rectGraphics = this.add.graphics();
-                this.controlledUnits = [];
+                this.selectedUnits = [];
 
                 this.selector.startX = this.aim.x;
                 this.selector.startY = this.aim.y;
@@ -225,7 +245,7 @@ export default class GameScene extends Phaser.Scene {
 
                     findUnits.forEach((body) => {
                         if (body.gameObject.type === 'Sprite') {
-                            this.controlledUnits.push(body.gameObject);
+                            this.selectedUnits.push(body.gameObject);
                         }
                     });
 
@@ -236,7 +256,7 @@ export default class GameScene extends Phaser.Scene {
 
         this.input.on('pointerdown', (pointer) => {
            if (pointer.rightButtonDown()) {
-               this.controlledUnits.forEach((unit) => {
+               this.selectedUnits.forEach((unit) => {
                    this.physics.moveTo(unit, this.aim.x, this.aim.y);
                });
            }
