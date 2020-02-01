@@ -41,6 +41,8 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('icon_dummy', 'assets/icons/icon_dummy.png');
         this.load.image('icon_repair', 'assets/icons/icon_repair.png');
         this.load.image('icon_damage', 'assets/icons/icon_damage.png');
+        this.load.image('icon_tank', 'assets/icons/icon_tank.png');
+        this.load.image('icon_fighter_jets', 'assets/icons/icon_fighter_jets.png');
         this.load.image('icon_money', 'assets/icons/icon_treasure.png');
         this.load.audio('hoverSound', 'assets/sounds/hud_hover.wav');
     }
@@ -273,7 +275,7 @@ export default class GameScene extends Phaser.Scene {
         // @todo Replace data with data from the server or hard coded controls
         let data = [{
             icon: 'icon_repair',
-            text: 'Build Soldier',
+            text: 'Repair',
             clickCallback: () => {
                 socket.sendToServer({
                     type: 'build',
@@ -284,19 +286,19 @@ export default class GameScene extends Phaser.Scene {
             }
         },{
             icon: 'icon_damage',
-            text: '$ Dmg Unit',
+            text: 'Destroy',
             clickCallback: () => {
                 alert('Clicked Item 2');
             }
         },{
-            icon: 'icon_dummy',
-            text: '$ DEV Unit',
+            icon: 'icon_tank',
+            text: 'Tank',
             clickCallback: () => {
                 alert('Clicked Item 3');
             }
         },{
-            icon: 'icon_dummy',
-            text: '$ OP Unit',
+            icon: 'icon_fighter_jets',
+            text: 'Aircraft',
             clickCallback: () => {
                 alert('Clicked Item 4');
             }
