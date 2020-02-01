@@ -40,6 +40,7 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('barracks', 'assets/barracks.png');
         this.load.image('airbase', 'assets/airbase.png');
 
+        this.load.image('dialog_small', 'assets/buttons/dialog_small.png');
 
         this.load.image('soldier', 'assets/soldier.png');
         this.load.image('tank', 'assets/tank.png');
@@ -73,9 +74,19 @@ export default class GameScene extends Phaser.Scene {
             } else if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
                     let baseSprite = this.physics.add.sprite(0, 0, data.buildings[buildingId].type);
+                    baseSprite.setInteractive();
+                    baseSprite.on('pointerdown', function(){
+
+                    });
+
                     var baseText = this.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
-                    var baseContainer = this.add.container(data.buildings[buildingId].x, data.buildings[buildingId].y, [baseText, baseSprite]);
+                    var baseContainer = this.add.container(
+                        data.buildings[buildingId].x,
+                        data.buildings[buildingId].y,
+                        [baseText, baseSprite]
+                    );
                     this.physics.world.enable(baseContainer);
+
                 }
 
                 this.moneyText.text = '$ ' + data.player.money;

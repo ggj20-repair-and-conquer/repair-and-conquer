@@ -109,17 +109,17 @@ wss.on('connection', function connection(ws) {
 
                     if (localPlayerCounter == 1) {
                         if (index == 0) {
-                            x = 100;
+                            x = 150;
                             y = 100;
                         } else if (index == 1) {
                             x = 250;
                             y = 100;
                         } else if (index == 2) {
                             x = 250;
-                            y = 250;
+                            y = 200;
                         } else if (index == 3) {
-                            x = 100;
-                            y = 250;
+                            x = 150;
+                            y = 200;
                         }
                     } else if (localPlayerCounter == 2) {
 
