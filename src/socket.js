@@ -9,8 +9,11 @@ let socket = {
         }
 
         this.ws.onerror = function() {
-            alert('server not running, please start server!');
         };
+
+        this.ws.onclose = function() {
+            alert('server not running, please start server!');
+        }
     },
     sendToServer(data) {
         this.ws.send(JSON.stringify(data));

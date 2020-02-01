@@ -16,7 +16,7 @@ function randomNumber()
 
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
-        msgObject = JSON.parse(message);
+        let msgObject = JSON.parse(message);
 
         if (msgObject.type == 'createGame') {
             gameCounter++;
@@ -25,6 +25,7 @@ wss.on('connection', function connection(ws) {
             gameData[gameId] = {
                 name: msgObject.name,
                 players: {},
+                chat: [],
                 started: false,
             };
 
@@ -33,7 +34,7 @@ wss.on('connection', function connection(ws) {
             playerCounter++;
             let gameId = msgObject.gameId;
             let playerId = randomNumber() + '' + playerCounter;
-
+            ws.playerId = playerId;
             gameData[gameId].players[playerId] = {
                 name: msgObject.playerName
             };
@@ -51,6 +52,44 @@ wss.on('connection', function connection(ws) {
             }
 
             sendToClient(ws, {type: 'listGames', games: games});
+        } else if (msgObject.type == 'getLobby') {
+            let players = [];
+            let chat = [];
+            let gameId = msgObject.gameId;
+
+            for (let playerId in gameData[gameId].players) {
+                players.push({
+                    'id': playerId,
+                    'playerName': gameData[gameId].players[playerId].name
+                })
+            }
+
+            for (let messageId in gameData[gameId].chat) {
+                chat.push({
+                    'msg': gameData[gameId].chat[messageId].name + ': ' + gameData[gameId].chat[messageId].msg
+                });
+            }
+
+            chat.reverse();
+
+            sendToClient(ws, {type: 'getLobby', players: players, chat: chat});
+        } else if (msgObject.type == 'chat') {
+            let gameId = msgObject.gameId;
+            let playerId = msgObject.playerId;
+
+            gameData[gameId].chat.push({
+                'name': gameData[gameId].players[playerId].name,
+                'msg': msgObject.msg
+            });
+        } else if (msgObject.type == 'startGame') {
+            let gameId = msgObject.gameId;
+            gameData[gameId].started = true;
+
+            wss.clients.forEach(function each(client) {
+                if (gameData[gameId].players[client.playerId]) {
+                    sendToClient(client, {type: 'startGame'});
+                }
+            });
         }
     }).on('close', function close() {
 
