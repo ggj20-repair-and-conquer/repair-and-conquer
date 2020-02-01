@@ -34,7 +34,6 @@ wss.on('connection', function connection(ws) {
                 units: {},
                 chat: [],
                 started: false,
-                map: [],
             };
 
             sendToClient(ws, {type: 'createGame', id: gameId});
@@ -137,10 +136,6 @@ wss.on('connection', function connection(ws) {
                 });
             }
 
-            for (i = 0; i < 150; i++) {
-                gameData[gameId].map.push(['hill', randomNumberRange(1, 160), randomNumberRange(1, 160)]);
-            }
-
             wss.clients.forEach(function each(client) {
                 if (gameData[gameId].players[client.playerId]) {
                     sendToClient(client, {type: 'startGame'});
@@ -170,7 +165,6 @@ wss.on('connection', function connection(ws) {
                 ws,
                 {
                     type: 'initGame',
-                    map: gameData[gameId].map
                 }
             );
         } else if (msgObject.type == 'build') {
