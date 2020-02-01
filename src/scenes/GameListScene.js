@@ -12,9 +12,10 @@ export default class GameListScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('txt_background', 'assets/buttons/txt_background.png');
+        this.load.image('txt_background', 'assets/buttons/btn_grey.png');
         this.load.image('btn_join', 'assets/buttons/btn_join.png');
         this.load.image('btn_back', 'assets/buttons/btn_back.png');
+
     }
 
     joinGame () {
@@ -42,11 +43,17 @@ export default class GameListScene extends Phaser.Scene {
         var rexUI = this.rexUI;
         // Button to go back
         const labelStyle = {
-            font: '32px Courier',
-            fill: '#ffffff'
+            font: '40px Serif',
+            fill: '#ffffff',
+            strokeThickness: 6,
+            stroke: '#000',
+            fontWeight: 'bold'
         }, textStyle = {
-            font: '44px Courier',
-            fill: '#ffff00'
+            font: '32px Courier',
+            fill: '#fff',
+            strokeThickness: 6,
+            stroke: '#000',
+            fontWeight: 'bold'
         };
 
         this.createGrid(rexUI);
@@ -78,7 +85,7 @@ export default class GameListScene extends Phaser.Scene {
 
         this.add.text(265, 35, 'Select a game', labelStyle);
 
-        txtBackgroundPlayer = this.add.image(1000, 320, 'txt_background');
+        txtBackgroundPlayer = this.add.image(1080, 320, 'txt_background');
         txtBackgroundPlayer.setInteractive();
 
         playerNameText = this.add.text(850, 230, 'Enter your name', labelStyle);
