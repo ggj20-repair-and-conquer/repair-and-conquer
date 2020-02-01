@@ -20,12 +20,14 @@ export default class MenuScene extends Phaser.Scene {
         const btnCreateGame = this.add.image(400, 650, 'btn_create');
         btnCreateGame.setInteractive();
         btnCreateGame.on('pointerdown', () => {
+            clickSound.play();
             this.scene.start('CreateGame');
         }, this);
 
         const btnJoinGame = this.add.image(1300, 650, 'btn_join');
         btnJoinGame.setInteractive();
         btnJoinGame.on('pointerdown', () => {
+            clickSound.play();
             this.scene.start('GameList');
         }, this);
     }
