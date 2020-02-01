@@ -25,7 +25,7 @@ export default class GameScene extends Phaser.Scene {
         this.rect = null;
         this.rectGraphics = null;
         this.units = [];
-        this.controlledUnits = [];
+        this.selectedUnits = [];
     }
 
     /**
@@ -73,19 +73,42 @@ export default class GameScene extends Phaser.Scene {
                 }
             } else if (data.type == 'updateUnits') {
                 for (let unitId in data.units) {
-                    let unitX = data.units[unitId].x;
-                    let unitY = data.units[unitId].y;
+                    let unit = data.units[unitId];
 
                     if (that.units[unitId]) {
-                        that.units[unitId].x = unitX;
-                        that.units[unitId].y = unitY;
+                        //that.units[unitId].x = unit.x;
+                        //that.units[unitId].y = unit.y;
                     } else {
-                        that.units[unitId] = new Unit(that, unitX, unitY, '');
+                        that.units[unitId] = new Unit(that, unit.x, unit.y, '');
+                        that.units[unitId].playerId = unit.playerId;
+                        that.units[unitId].unitType = unit.type;
                         that.add.existing(that.units[unitId]);
                     }
                 }
+            } else if (data.type == 'updateUnitPositions') {
+                for (var position of data.positions) {
+                    that.units[position[0]].x = position[1];
+                    that.units[position[0]].y = position[2];
+                }
             }
         });
+
+        setInterval(() => {
+            let unitPositions = [];
+
+            for (let unitId in that.units) {
+                if (that.units[unitId].playerId == socket.gameData.playerId) {
+                    unitPositions.push([unitId, that.units[unitId].x, that.units[unitId].y])
+                }
+            }
+
+            socket.sendToServer({
+                type: 'updateUnitPositions',
+                gameId: socket.gameData.gameId,
+                playerId: socket.gameData.playerId,
+                positions: unitPositions
+            });
+        }, 50);
 
         setInterval(() => {
             socket.sendToServer({
@@ -136,10 +159,25 @@ export default class GameScene extends Phaser.Scene {
          * Camera
          */
         this.physics.world.setBounds(0, 0, 10000, 10000);
-        this.minimap = this.cameras.add(1700-300, 900-300, 300, 300).setZoom(0.05).setName('mini');
-        this.minimap.setBackgroundColor(0x002244);
+        this.minimap = this.cameras.add(1700-300, 900-400, 300, 300).setZoom(0.05).setName('mini');
+        this.minimap.setBackgroundColor(0x3e4f3c);
         this.minimap.scrollX = 2800;
         this.minimap.scrollY = 2800;
+        // Ignore party of the map to improve performance
+        this.minimap.ignore(worldTileSet);
+        this.minimap.ignore(worldLayer);
+        this.minimap.ignore(this.collisionLayer);
+        // Create a rectangle as the view border in the minimap which we move in update()
+        this.minimapRect = new Phaser.Geom.Rectangle(
+            0 - 10,
+            0 - 10,
+            1720,
+            920,
+        );
+        this.minimapRectGraphics = this.add.graphics();
+        this.minimapRectGraphics.lineStyle(20, 0xff0000, 1);
+        this.minimapRectGraphics.strokeRectShape(this.minimapRect);
+
         /*
          * Mouse controller
          */
@@ -180,7 +218,7 @@ export default class GameScene extends Phaser.Scene {
         this.input.on('pointerdown', (pointer) => {
             if (pointer.leftButtonDown()) {
                 this.rectGraphics = this.add.graphics();
-                this.controlledUnits = [];
+                this.selectedUnits = [];
 
                 this.selector.startX = this.aim.x;
                 this.selector.startY = this.aim.y;
@@ -222,7 +260,7 @@ export default class GameScene extends Phaser.Scene {
 
                     findUnits.forEach((body) => {
                         if (body.gameObject.type === 'Sprite') {
-                            this.controlledUnits.push(body.gameObject);
+                            this.selectedUnits.push(body.gameObject);
                         }
                     });
 
@@ -233,16 +271,12 @@ export default class GameScene extends Phaser.Scene {
 
         this.input.on('pointerdown', (pointer) => {
            if (pointer.rightButtonDown()) {
-               this.controlledUnits.forEach((unit) => {
-                   this.physics.moveTo(unit, this.aim.x, this.aim.y);
+               this.selectedUnits.forEach((unit) => {
+                   unit.startMove(this, this.aim.x,this.aim.y);
                });
            }
         });
 
-        this.physics.add.overlap(this.units, worldLayer, (units) => {
-            console.log("units");
-            console.log(units);
-        });
         /*
          * Overlay
          */
@@ -286,6 +320,7 @@ export default class GameScene extends Phaser.Scene {
             }
         }];
         this.hudTable = this.createHud(data);
+        this.minimap.ignore(this.hudTable);
 
         // This stay be at the end
         this.socketHandling()
@@ -325,6 +360,13 @@ export default class GameScene extends Phaser.Scene {
             // Update hudTable coordinates since this.cameras.main.x and y is 0 always and we therefore cannot attach to it.
             this.hudTable.x = this.cameras.main.scrollX + (1700/2);
             this.hudTable.y = this.cameras.main.scrollY + 850;
+
+            // Update the rectangle for the minimap
+            this.minimapRect.setPosition(this.cameras.main.scrollX - 10, this.cameras.main.scrollY - 10);
+            this.minimapRectGraphics.destroy();
+            this.minimapRectGraphics = this.add.graphics();
+            this.minimapRectGraphics.lineStyle(20, 0xff0000, 1);
+            this.minimapRectGraphics.strokeRectShape(this.minimapRect);
         }
     }
 

@@ -168,14 +168,26 @@ wss.on('connection', function connection(ws) {
             let unitId = randomNumber() + '' + unitCounter;
 
             gameData[gameId].units[unitId] = {
-                x: 100,
-                y: 100,
+                x: 200,
+                y: 200,
                 playerId: playerId,
-                health: 100
+                health: 100,
+                type: 'soldier'
             };
 
             wss.clients.forEach(function each(client) {
-                sendToClient(client, {type: 'updateUnits', units: gameData[gameId].units});
+                if (gameData[gameId].players[client.playerId]) {
+                    sendToClient(client, {type: 'updateUnits', units: gameData[gameId].units});
+                }
+            });
+        } else if (msgObject.type == 'updateUnitPositions') {
+            let gameId = msgObject.gameId;
+
+            wss.clients.forEach(function each(client) {
+                if (ws != client && gameData[gameId].players[client.playerId]) {
+                    sendToClient(client, {type: 'updateUnitPositions', positions:  msgObject.positions});
+                }
+
             });
         }
     }).on('close', function close() {
