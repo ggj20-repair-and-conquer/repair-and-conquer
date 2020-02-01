@@ -4,6 +4,9 @@ export default class GameScene extends Phaser.Scene {
 
     constructor() {
         super('Game');
+        // variables for the hud
+        this.hudTable;
+        this.hudHovered = false;
     }
 
     init() {
@@ -30,6 +33,8 @@ export default class GameScene extends Phaser.Scene {
          */
         this.load.image("tiles", "assets/tilesets/overworld_tileset_grass.png");
         this.load.tilemapTiledJSON("map", "assets/tilemaps/mapTemplate.json");
+        // @todo Dummy for the HUD, replace this
+        this.load.image('icon_dummy', 'assets/icons/icon_dummy.png');
     }
 
     socketHandling() {
@@ -179,6 +184,42 @@ export default class GameScene extends Phaser.Scene {
             }
         }, this);
 
+        // Generate Hud data and create initial Hud
+        // @todo Replace data with data from the server or hard coded controls
+        let data = [{
+            icon: 'icon_dummy',
+            text: '$ Rep Unit',
+            clickCallback: () => {
+                alert('Clicked Item 1');
+            }
+        },{
+            icon: 'icon_dummy',
+            text: '$ Dmg Unit',
+            clickCallback: () => {
+                alert('Clicked Item 2');
+            }
+        },{
+            icon: 'icon_dummy',
+            text: '$ DEV Unit',
+            clickCallback: () => {
+                alert('Clicked Item 3');
+            }
+        },{
+            icon: 'icon_dummy',
+            text: '$ OP Unit',
+            clickCallback: () => {
+                alert('Clicked Item 4');
+            }
+        },{
+            icon: 'icon_dummy',
+            text: '$$$ Money',
+            clickCallback: () => {
+                alert('Clicked Item 5. $$$DOLLARS$$$');
+            }
+        }];
+        this.hudTable = this.createHud(data);
+
+        // This stay be at the end
         this.socketHandling()
     }
 
@@ -187,7 +228,8 @@ export default class GameScene extends Phaser.Scene {
      * e.g. mousemovement...
      */
     update(time, delta) {
-        if (this.lockMovement) {
+        // this.hudHovered manages stop scrolling if the hud gets hovered
+        if (this.lockMovement && !this.hudHovered) {
             const mouseX = this.aim.x;
             const mouseY = this.aim.y;
             const xThreshold = 1700 / 3;
@@ -209,6 +251,81 @@ export default class GameScene extends Phaser.Scene {
                 this.cameras.main.scrollY -= deltaScroll;
                 this.aim.y -= deltaScroll;
             }
+
+            // Update hudTable coordinates since this.cameras.main.x and y is 0 always and we therefore cannot attach to it.
+            this.hudTable.x = this.cameras.main.scrollX + (1700/2);
+            this.hudTable.y = this.cameras.main.scrollY + 810;
         }
+    }
+
+    /**
+     * Creates the HUD in this.hudTable with the given data.
+     *
+     * @param {*} data Should have following keys
+     *      icon: Path for an icon to show, displayed on the left.
+     *      text: The text to show.
+     *      clickCallback: A function called when the cell gets clicked.
+     */
+    createHud(data) {
+        var rexUI = this.rexUI;
+        var data = data;
+        let hudTable = rexUI.add.gridTable({
+            x: this.cameras.main.scrollX + (1700/2),
+            y: this.cameras.main.scrollY + 810,
+            background: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0x2D3C2C, 0.8),
+            table: {
+                width: 1000,
+                height: 120,
+                cellWidth: 200,
+                cellHeight: 120,
+                columns: 5,
+            },
+            space: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10,
+                table: 10,
+            },
+            items: data,
+            createCellContainerCallback: function (cell) {
+                var scene = cell.scene,
+                    width = cell.width,
+                    height = cell.height,
+                    item = cell.item;
+                let iconImg = scene.add.image(0, 0, item.icon);
+                return scene.rexUI.add.label({
+                    width: width,
+                    height: height,
+                    background: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, 0x455a43),
+                    icon: iconImg,
+                    text: scene.add.text(0, 0, item.text),
+                    space: {
+                        icon: 10,
+                        left: 15
+                    },
+                    data: {
+                        'clickCallback': item.clickCallback
+                    }
+                }).setOrigin(0).layout();
+            }
+        }).layout()
+        .on('cell.over', function (cellContainer, cellIndex) {
+            cellContainer.getElement('background')
+                .setStrokeStyle(1, 0xffffff)
+                .setDepth(1);
+            this.hudHovered = true;
+        }, this).on('cell.out', function (cellContainer, cellIndex) {
+            cellContainer.getElement('background')
+                .setStrokeStyle(2, 0x455a43)
+                .setDepth(0);
+            this.hudHovered = false;
+        }, this).on('cell.click', function (cellContainer, cellIndex) {
+            // Call the callback we get via data
+            console.log(data);
+            data[cellIndex].clickCallback();
+        }, this);
+
+        return hudTable
     }
 };
