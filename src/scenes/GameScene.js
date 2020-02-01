@@ -6,10 +6,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     init() {
-        this.player = null;
-        this.players = new Array();
         this.aim = null;
-        this.pointerToggle = false;
         this.lockMovement = false;
         this.selector = {
             startX: 0,
@@ -61,9 +58,6 @@ export default class GameScene extends Phaser.Scene {
 
         // Set Player & Aim Properties
         this.aim.setOrigin(0.5, 0.5).setDisplaySize(15, 15).setCollideWorldBounds(true);
-
-
-
 
         this.input.on('pointermove', (pointer) => {
             this.aim.x = this.input.activePointer.worldX;
