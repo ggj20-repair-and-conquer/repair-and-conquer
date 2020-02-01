@@ -14,9 +14,6 @@ export default class MenuScene extends Phaser.Scene {
     }
 
     create() {
-        const background = this.add.image(config.width/2, config.height/2, 'background');
-        background.setDisplaySize(config.width, config.height);
-
         const logo = this.add.image(config.width/2, config.height/2 - 150, 'logo');
         logo.setInteractive();
 
