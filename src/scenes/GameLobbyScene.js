@@ -17,7 +17,10 @@ export default class GameLobbyScene extends Phaser.Scene {
             fill: '#ffffff'
         }, textStyle = {
             font: '32px Courier',
-            fill: '#ffff00'
+            fill: '#fff',
+            strokeThickness: 6,
+            stroke: '#000',
+            fontWeight: 'bold'
         };
 
         const txtBackgroundPlayer = this.add.image(840, 580, 'txt_background');

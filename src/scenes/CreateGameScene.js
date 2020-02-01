@@ -96,12 +96,18 @@ export default class CreateGameScene extends Phaser.Scene {
 
         let gameRoomText = this.add.text(590, 180, '', {
             font: '32px Courier',
-            fill: '#ffff00'
+            fill: '#fff',
+            strokeThickness: 6,
+            stroke: '#000',
+            fontWeight: 'bold'
         });
 
         let playerNameText = this.add.text(590, 380, '', {
             font: '32px Courier',
-            fill: '#ffff00'
+            fill: '#fff',
+            strokeThickness: 6,
+            stroke: '#000',
+            fontWeight: 'bold'
         });
 
         this.keyFocus = gameRoomText;
