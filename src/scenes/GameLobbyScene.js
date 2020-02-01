@@ -5,7 +5,7 @@ export default class GameLobbyScene extends Phaser.Scene {
         super('GameLobby')
     }
     preload() {
-        this.load.image('txt_background', 'assets/buttons/btn_grey.png');
+        this.load.image('btn_chat', 'assets/buttons/btn_chat.png');
         this.load.image('btn_back', 'assets/buttons/btn_back.png');
         this.load.image('btn_start', 'assets/buttons/btn_start.png');
     }
@@ -26,9 +26,9 @@ export default class GameLobbyScene extends Phaser.Scene {
             fontWeight: 'bold'
         };
 
-        const txtBackgroundPlayer = this.add.image(840, 615, 'txt_background');
-        const txtPlayer = this.add.text(620, 600, '', textStyle);
-        const btnEnterPlayer = this.add.text(500, 595, 'Chat:', labelStyle);
+        const txtBackgroundPlayer = this.add.image(1120, 615, "btn_chat");
+        const txtPlayer = this.add.text(650, 595, "", textStyle);
+        const btnEnterPlayer = this.add.text(500, 595, "Chat:", labelStyle);
 
         btnEnterPlayer.setInteractive();
         btnEnterPlayer.on('pointerdown', () => {
@@ -128,7 +128,7 @@ export default class GameLobbyScene extends Phaser.Scene {
             y: 309,
             background: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0xFFFFFF),
             table: {
-                width: 950,
+                width: 920,
                 height: 400,
                 cellWidth: 450,
                 cellHeight: 60,
