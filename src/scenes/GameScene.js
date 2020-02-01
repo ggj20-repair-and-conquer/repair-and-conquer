@@ -195,29 +195,31 @@ export default class GameScene extends Phaser.Scene {
         }, this);
 
         this.input.on('pointerup', (pointer) => {
-
             if (pointer.leftButtonReleased()) {
                 if (this.rect !== null) {
                     this.selector.visible = false;
-                    // for (let i = 0; i < this.units.length; i++) {
-                    //     if (this.rect.contains(this.units[i].x, this.units[i].y)) {
-                    //         this.controlledUnits.push(i);
-                    //     }
-                    // }
+                    if (this.selector.startX > this.selector.endX) {
+                        let temp = this.selector.startX;
+                        this.selector.startX = this.selector.endX;
+                        this.selector.endX = temp;
+                    }
+
+                    if (this.selector.startY > this.selector.endY) {
+                        let temp = this.selector.startY;
+                        this.selector.startY = this.selector.endY;
+                        this.selector.endY = temp;
+                    }
 
                     let findUnits = this.physics.overlapRect(
-                        this.rect.x,
-                        this.rect.y,
-                        this.rect.width,
-                        this.rect.height,
+                        this.selector.startX,
+                        this.selector.startY,
+                        this.selector.endX - this.selector.startX,
+                        this.selector.endY - this.selector.startY
                     );
 
-                    this.controlledUnits = findUnits.forEach((body) => {
+                    findUnits.forEach((body) => {
                         if (body.gameObject.type === 'Sprite') {
-                            // this.units[body.gameoObject.unitId] // =>
-                            console.log(body.gameObject);
-
-                            //body.moveTo(this.);
+                            this.controlledUnits.push(body.gameObject);
                         }
                     });
 
@@ -228,11 +230,19 @@ export default class GameScene extends Phaser.Scene {
 
         this.input.on('pointerdown', (pointer) => {
            if (pointer.rightButtonDown()) {
-               this.controlledUnits.forEach((i) => {
-                   this.physics.moveTo(this.units[i], this.aim.x, this.aim.y);
+               this.controlledUnits.forEach((unit) => {
+                   this.physics.moveTo(unit, this.aim.x, this.aim.y);
                });
            }
         });
+
+        this.physics.add.overlap(this.units, worldLayer, (units) => {
+            console.log("units");
+            console.log(units);
+        });
+        /*
+         * Overlay
+         */
       
         // Generate Hud data and create initial Hud
         // @todo Replace data with data from the server or hard coded controls
@@ -291,7 +301,7 @@ export default class GameScene extends Phaser.Scene {
             const yThreshold = 900 / 3;
             const deltaScroll = 10;
 
-            if(mouseX > this.cameras.main.midPoint.x + xThreshold) {
+            if (mouseX > this.cameras.main.midPoint.x + xThreshold) {
                 this.cameras.main.scrollX += deltaScroll;
                 this.aim.x += deltaScroll;
             } else if (mouseX < this.cameras.main.midPoint.x - xThreshold) {
@@ -299,8 +309,8 @@ export default class GameScene extends Phaser.Scene {
                 this.aim.x -= deltaScroll;
             }
 
+
             if(mouseY > this.cameras.main.midPoint.y + yThreshold - 100) {
-                // Move camera downwards
                 this.cameras.main.scrollY += deltaScroll;
                 this.aim.y += deltaScroll;
             } else if (mouseY < this.cameras.main.midPoint.y - yThreshold) {
