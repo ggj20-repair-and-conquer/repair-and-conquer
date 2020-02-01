@@ -13,8 +13,11 @@ export default class GameLobbyScene extends Phaser.Scene {
         var rexUI = this.rexUI;
 
         const labelStyle = {
-            font: '32px Courier',
-            fill: '#ffffff'
+            font: '36px Serif',
+            fill: '#ffffff',
+            strokeThickness: 6,
+            stroke: '#000',
+            fontWeight: 'bold'
         }, textStyle = {
             font: '32px Courier',
             fill: '#fff',
@@ -23,9 +26,9 @@ export default class GameLobbyScene extends Phaser.Scene {
             fontWeight: 'bold'
         };
 
-        const txtBackgroundPlayer = this.add.image(840, 580, 'txt_background');
-        const txtPlayer = this.add.text(620, 565, '', textStyle);
-        const btnEnterPlayer = this.add.text(465, 560, 'Chat:', labelStyle);
+        const txtBackgroundPlayer = this.add.image(840, 615, 'txt_background');
+        const txtPlayer = this.add.text(620, 600, '', textStyle);
+        const btnEnterPlayer = this.add.text(500, 595, 'Chat:', labelStyle);
 
         btnEnterPlayer.setInteractive();
         btnEnterPlayer.on('pointerdown', () => {
@@ -37,8 +40,8 @@ export default class GameLobbyScene extends Phaser.Scene {
             btnEnterPlayer.keyFocus = txtPlayer;
         }, this);
 
-        this.add.text(250, 45, 'Player-List', labelStyle);
-        this.add.text(590, 45, 'Chat Room', labelStyle);
+        this.add.text(310, 45, 'Players List', labelStyle);
+        this.add.text(1050, 45, 'Chat Room', labelStyle);
 
         this.keyFocus = txtPlayer;
 
@@ -84,7 +87,7 @@ export default class GameLobbyScene extends Phaser.Scene {
         var gridTable = rexUI.add.gridTable({
             x: 400,
             y: 300,
-            background: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0x4e342e),
+            background: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0xFFFFFF),
             table: {
                 width: 250,
                 height: 400,
@@ -93,8 +96,8 @@ export default class GameLobbyScene extends Phaser.Scene {
                 columns: 1,
             },
             slider: {
-                track: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0x260e04),
-                thumb: rexUI.add.roundRectangle(0, 0, 0, 0, 13, 0x7b5e57),
+                track: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0x2D3C2C),
+                thumb: rexUI.add.roundRectangle(0, 0, 0, 0, 13, 0x576356),
             },
             space: {
                 left: 10,
@@ -111,40 +114,29 @@ export default class GameLobbyScene extends Phaser.Scene {
                 return scene.rexUI.add.label({
                     width: width,
                     height: height,
-                    background: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, 0x260e04),
-                    icon: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 10, item.color),
-                    text: scene.add.text(0, 0, item.playerName),
+                    text: scene.add.text(0, 0, item.playerName, {font: '24px Serif', fill: '#000'}),
                     space: {
                         icon: 10,
-                        left: 15
+                        left: 5
                     }
                 }).setOrigin(0).layout();
             }
         }).layout()
-        gridTable.on('cell.over', function (cellContainer, cellIndex) {
-            cellContainer.getElement('background')
-                .setStrokeStyle(1, 0xffffff)
-                .setDepth(1);
-        }, this).on('cell.out', function (cellContainer, cellIndex) {
-            cellContainer.getElement('background')
-                .setStrokeStyle(2, 0x260e04)
-                .setDepth(0);
-        }, this);
 
         var gridTableChat = rexUI.add.gridTable({
-            x: 850,
+            x: 1110,
             y: 309,
-            background: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0x4e342e),
+            background: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0xFFFFFF),
             table: {
-                width: 450,
+                width: 950,
                 height: 400,
                 cellWidth: 450,
                 cellHeight: 60,
                 columns: 1,
             },
             slider: {
-                track: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0x260e04),
-                thumb: rexUI.add.roundRectangle(0, 0, 0, 0, 13, 0x7b5e57),
+                track: rexUI.add.roundRectangle(0, 0, 20, 10, 10, 0x2D3C2C),
+                thumb: rexUI.add.roundRectangle(0, 0, 0, 0, 13, 0x576356),
             },
             space: {
                 left: 20,
@@ -161,9 +153,7 @@ export default class GameLobbyScene extends Phaser.Scene {
                 return scene.rexUI.add.label({
                     width: width,
                     height: height,
-                    background: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 0).setStrokeStyle(2, 0x260e04),
-                    icon: scene.rexUI.add.roundRectangle(0, 0, 20, 20, 10, item.color),
-                    text: scene.add.text(0, 0, item.msg),
+                    text: scene.add.text(0, 0, item.msg, {font: '24px Serif', fill: '#000'}),
                     space: {
                         icon: 10,
                         left: 15
