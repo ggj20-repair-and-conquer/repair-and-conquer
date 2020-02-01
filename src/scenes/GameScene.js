@@ -1,4 +1,5 @@
 import 'phaser'
+import Unit from "../classes/units.js";
 
 export default class GameScene extends Phaser.Scene {
     constructor() {
@@ -36,6 +37,7 @@ export default class GameScene extends Phaser.Scene {
      */
     create() {
         // ActionKeys
+        game.input.mouse.disableContextMenu();
         this.actionsKeys = this.input.keyboard.addKeys({
             'SPACE': Phaser.Input.Keyboard.KeyCodes.SPACE,
         });
@@ -43,22 +45,20 @@ export default class GameScene extends Phaser.Scene {
         this.input.keyboard.on('keydown_SPACE', (event) => {
             this.lockMovement = !this.lockMovement;
         });
-        // Map Tiles
+        /*
+         * MAP SETTINGS
+         */
         const mapScale = 2;
         const map = this.make.tilemap({ key: "map" });
-        // Collide Option
         map.setCollisionByProperty({ collides: true });
-        // Tileset Config
         const tileset = map.addTilesetImage("grass_biome", "tiles");
-        // Map World Layer
         const worldLayer = map.createStaticLayer("world", tileset, 0, 0).setScale(mapScale);
-        // Create world bounds
         this.physics.world.setBounds(0, 0, 10000, 10000);
-        game.input.mouse.disableContextMenu();
 
+        /*
+         * Mouse controller
+         */
         this.aim = this.physics.add.sprite(600, 700, 'aim');
-
-        // Set Player & Aim Properties
         this.aim.setOrigin(0.5, 0.5).setDisplaySize(15, 15).setCollideWorldBounds(true);
 
         this.input.on('pointermove', (pointer) => {
@@ -119,6 +119,35 @@ export default class GameScene extends Phaser.Scene {
                 }
             }
         }, this);
+
+        /*
+         * Unit Controller
+         */
+        let units = this.physics.add.group({
+            classType: Unit,
+            maxSize: 30,
+            runChildUpdate: true
+        });
+
+        var unit = units.get().setActive(true).setVisible(true);
+        unit.spawn({'x': 500, 'y': 500});
+
+        this.physics.add.overlap(units, worldLayer, (bullet, zone) => {
+            if(zone.collides == true) {
+                console.log("collide!!");
+                unit.stopMove();
+            }
+        });
+
+        this.input.on('pointerdown', (pointer) => {
+           if (pointer.rightButtonDown()) {
+               unit.setTarget(
+                   {'x': unit.getX(), 'y': unit.getY},
+                   {'x': this.aim.x, 'y': this.aim.y}
+                   );
+           }
+        });
+
     }
 
     /*
