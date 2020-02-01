@@ -25,8 +25,9 @@ export default class GameScene extends Phaser.Scene {
         this.buildings = [];
         this.selectedUnits = [];
 
-        // The current id of the selected building, null if none selected
-        this.selectedBuilding = null;
+        // All current action containers
+        this.actionContainers = [];
+        this.actionContainerOpen = false;
     }
 
     /**
@@ -106,6 +107,9 @@ export default class GameScene extends Phaser.Scene {
                                     }
                                 }
                             ], buildingId), this);
+                        } else {
+                            // Clear containers if we click the base since it has no actions
+                            baseSprite.on('pointerdown', () => this.clearActionContainers());
                         }
 
                         var baseText = this.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
@@ -337,6 +341,17 @@ export default class GameScene extends Phaser.Scene {
         });
 
         /*
+         * Destroy every actionContainer on a new click on the map.
+         * This wont trigger if clicked on a sprite etc.
+         */
+        this.input.on('pointerdown', (pointer, gameObject) => {
+            if (Object.keys(gameObject).length === 0 && this.actionContainerOpen == true) {
+                this.clearActionContainers();
+                this.actionContainerOpen = false;
+            }
+        });
+
+        /*
          * Overlay
          */
 
@@ -429,35 +444,38 @@ export default class GameScene extends Phaser.Scene {
      */
     actionButton(actions, buildingId) {
         return function(pointer){
+            // Clear containers so we can create new ones for a newly clicked building
+            this.clearActionContainers();
             // Use a container so we can destroy all UI elements with one call.
             let actionContainer = this.add.container(
                 pointer.x,
                 pointer.y
             );
+            this.actionContainers.push(actionContainer);
             actions.forEach((action, index) => {
-                // Prohibit multiple selections of buildings.
-                if (this.selectedBuilding === null) {
-                    let baseY = index * 40;
-                    const btnBuild = this.add.image(0, baseY, 'dialog_small').setOrigin(0, 0);
-                    const textBuild = this.add.text(0 + 25, baseY + 15, action.text, {
-                        font: '17px Courier',
-                        fill: '#fff',
-                        strokeThickness: 3,
-                        stroke: '#000',
-                        fontWeight: 'bold'
-                    });
-                    actionContainer.add(btnBuild);
-                    actionContainer.add(textBuild);
-                    btnBuild.setInteractive();
-                    btnBuild.on('pointerdown', () => {
-                        // Call the given callback function, free next building selection and clear created objects.
-                        action.callback();
-                        this.selectedBuilding = null;
-                        actionContainer.destroy();
-                    }, this);
-                }
+                let baseY = index * 40;
+                const btnBuild = this.add.image(0, baseY, 'dialog_small').setOrigin(0, 0);
+                const textBuild = this.add.text(0 + 25, baseY + 15, action.text, {
+                    font: '17px Courier',
+                    fill: '#fff',
+                    strokeThickness: 3,
+                    stroke: '#000',
+                    fontWeight: 'bold'
+                });
+                actionContainer.add(btnBuild);
+                actionContainer.add(textBuild);
+                btnBuild.setInteractive();
+                btnBuild.on('pointerdown', () => {
+                    // Call the given callback function, free next building selection and clear created objects.
+                    action.callback();
+                    actionContainer.destroy();
+                }, this);
             });
-            this.selectedBuilding = buildingId;
+            this.actionContainerOpen = true;
         };
+    }
+
+    clearActionContainers() {
+        this.actionContainers.forEach((container) => container.destroy());
     }
 };
