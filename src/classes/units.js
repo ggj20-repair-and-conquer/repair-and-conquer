@@ -1,24 +1,15 @@
+import 'phaser'
 
-import 'phaser';
+export class Unit extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y, texture) {
+        super(scene, x, y, texture);
+        scene.add.existing(this);
+        scene.physics.add.existing(this);
+        scene.physics.world.enableBody(this, 0);
 
-export default new Phaser.Class({
-
-    Extends: Phaser.GameObjects.Image,
-
-    initialize:
-
-    function Test() {
-
-    },
-
-    // Updates the position of the bullet each cycle
-    update: (time, delta) => {
-        this.x += this.xSpeed * delta;
-        this.y += this.ySpeed * delta;
-        this.born += delta;
-        if (this.born > 5000) {
-            this.setActive(false);
-            this.setVisible(false);
-        }
+        this.health = 100;
+        this.speed = 1;
+        this.level = 1;
+        this.armor = 0;
     }
-});
+}
