@@ -231,7 +231,7 @@ export default class GameScene extends Phaser.Scene {
         this.input.on('pointerdown', (pointer) => {
            if (pointer.rightButtonDown()) {
                this.controlledUnits.forEach((unit) => {
-                   this.physics.moveTo(unit, this.aim.x, this.aim.y);
+                   unit.startMove(this.aim.x,this.aim.y);
                });
            }
         });
