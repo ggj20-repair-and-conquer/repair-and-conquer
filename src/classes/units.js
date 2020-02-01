@@ -11,5 +11,19 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.speed = 1;
         this.level = 1;
         this.armor = 0;
+        this.state = 0;
+
+        this.targetX = 0;
+        this.targetY = 0;
+    }
+
+    setTarget(x, y) {
+        this.targetX = x;
+        this.targetY = y;
+        this.state = 1;
+    }
+
+    update(time, delta) {
+
     }
 }

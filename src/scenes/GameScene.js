@@ -1,5 +1,6 @@
 import 'phaser'
 import {Unit} from "../classes/units";
+import config from '../config/config.js';
 
 export default class GameScene extends Phaser.Scene {
 
@@ -34,8 +35,8 @@ export default class GameScene extends Phaser.Scene {
         /**
          * Load TileImages and TileSets
          */
-        this.load.image("tiles", "assets/tilesets/overworld_tileset_grass.png");
-        this.load.tilemapTiledJSON("map", "assets/tilemaps/mapTemplate.json");
+        this.load.image("tiles", "assets/tilesets/mountain_landscape.png");
+        this.load.tilemapTiledJSON("map", "assets/tilemaps/mountainMapTemplate.json");
         // @todo Dummy for the HUD, replace this
         this.load.image('icon_dummy', 'assets/icons/icon_dummy.png');
         this.load.image('icon_repair', 'assets/icons/icon_repair.png');
@@ -46,6 +47,11 @@ export default class GameScene extends Phaser.Scene {
 
     socketHandling() {
         socket.sendToServer({
+            type: 'initGame',
+            gameId: socket.gameData.gameId,
+            playerId: socket.gameData.playerId
+        });
+        socket.sendToServer({
             type: 'updateGame',
             gameId: socket.gameData.gameId,
             playerId: socket.gameData.playerId
@@ -54,7 +60,11 @@ export default class GameScene extends Phaser.Scene {
         let that = this;
 
         socket.getFromServer(function(data) {
-            if (data.type == 'updateGame') {
+            if (data.type == 'initGame') {
+                for (var m of data.map) {
+                    that.collisionLayer.putTilesAt(config.map[m[0]], m[1], m[2]);
+                }
+            } else if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
                     let baseSprite = that.physics.add.sprite(0, 0, 'base');
                     var baseText = that.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
@@ -93,27 +103,23 @@ export default class GameScene extends Phaser.Scene {
         /*
          * MAP SETTINGS
          */
-        const mapScale = 2;
+        /**
+         * Map Config
+         */
+        const mapScale = 1;
+
         const map = this.make.tilemap({ key: "map" });
         map.setCollisionByProperty({ collides: true });
-        const worldTileSet = map.addTilesetImage("grass_biome", "tiles");
-      
+
+        // Tileset Config
+        const worldTileSet = map.addTilesetImage("mountain_landscape", "tiles");
+
         /**
          * Create Map with Objects
          */
+        // Map World Layer
         const worldLayer = map.createDynamicLayer("World", worldTileSet, 0, 0).setScale(mapScale);
-        const collisionLayer = map.createBlankDynamicLayer("Collision", worldTileSet, 0, 0).setScale(mapScale);
-
-        // File with Assets should be in another file
-        const testHill = [
-          [1, 1, 1, 1, 91, 80, 80, 92],
-          [1, 1, 91, 80, 81, 108, 96, 67],
-          [139, 92, 144, 120, 96, 91, 80, 81],
-          [1, 142, 1, 108, 108, 144, 1, 1]
-        ];
-
-        // Add all map objects to map TODO: coords from server and loop
-        collisionLayer.putTilesAt(testHill, 20, 20);
+        this.collisionLayer = map.createBlankDynamicLayer("Collision", worldTileSet, 0, 0).setScale(mapScale);
 
         /**
          * Camera
@@ -123,7 +129,8 @@ export default class GameScene extends Phaser.Scene {
         /*
          * Mouse controller
          */
-        this.aim = this.physics.add.sprite(600, 700, 'aim');
+        this.aim = this.physics.add.image(600, 700, 'aim');
+        this.aim.visible = false;
         this.aim.setOrigin(0.5, 0.5).setDisplaySize(15, 15).setCollideWorldBounds(true);
 
         this.input.on('pointermove', (pointer) => {
@@ -177,14 +184,32 @@ export default class GameScene extends Phaser.Scene {
         }, this);
 
         this.input.on('pointerup', (pointer) => {
+
             if (pointer.leftButtonReleased()) {
                 if (this.rect !== null) {
                     this.selector.visible = false;
-                    for (let i = 0; i < this.units.length; i++) {
-                        if (this.rect.contains(this.units[i].x, this.units[i].y)) {
-                            this.controlledUnits.push(i);
+                    // for (let i = 0; i < this.units.length; i++) {
+                    //     if (this.rect.contains(this.units[i].x, this.units[i].y)) {
+                    //         this.controlledUnits.push(i);
+                    //     }
+                    // }
+
+                    let findUnits = this.physics.overlapRect(
+                        this.rect.x,
+                        this.rect.y,
+                        this.rect.width,
+                        this.rect.height,
+                    );
+
+                    this.controlledUnits = findUnits.forEach((body) => {
+                        if (body.gameObject.type === 'Sprite') {
+                            // this.units[body.gameoObject.unitId] // =>
+                            console.log(body.gameObject);
+
+                            //body.moveTo(this.);
                         }
-                    }
+                    });
+
                     this.rectGraphics.destroy();
                 }
             }

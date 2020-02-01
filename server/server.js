@@ -15,6 +15,10 @@ function randomNumber()
     return Math.floor(100000 + Math.random() * 900000);
 }
 
+function randomNumberRange(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+}
+
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(message) {
         let msgObject = JSON.parse(message);
@@ -28,6 +32,7 @@ wss.on('connection', function connection(ws) {
                 players: {},
                 chat: [],
                 started: false,
+                map: [],
             };
 
             sendToClient(ws, {type: 'createGame', id: gameId});
@@ -117,6 +122,10 @@ wss.on('connection', function connection(ws) {
                 };
             }
 
+            for (i = 0; i < 150; i++) {
+                gameData[gameId].map.push(['hill', randomNumberRange(1, 160), randomNumberRange(1, 160)]);
+            }
+
             wss.clients.forEach(function each(client) {
                 if (gameData[gameId].players[client.playerId]) {
                     sendToClient(client, {type: 'startGame'});
@@ -138,6 +147,15 @@ wss.on('connection', function connection(ws) {
                     player: {
                         money:  gameData[gameId].players[playerId].money,
                     }
+                }
+            );
+        } else if (msgObject.type == 'initGame') {
+            let gameId = msgObject.gameId;
+            sendToClient(
+                ws,
+                {
+                    type: 'initGame',
+                    map: gameData[gameId].map
                 }
             );
         }
