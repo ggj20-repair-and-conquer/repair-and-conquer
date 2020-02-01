@@ -62,7 +62,7 @@ export default class GameListScene extends Phaser.Scene {
             }
         });
 
-        const btnBack = this.add.image(400, 750, 'btn_back');
+        const btnBack = this.add.image(500, 750, 'btn_back');
         btnBack.setInteractive();
         btnBack.on('pointerdown', () => {
             // @todo add sound
