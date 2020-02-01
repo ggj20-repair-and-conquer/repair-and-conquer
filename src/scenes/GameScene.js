@@ -139,10 +139,13 @@ export default class GameScene extends Phaser.Scene {
          * Camera
          */
         this.physics.world.setBounds(0, 0, 10000, 10000);
-        this.minimap = this.cameras.add(1700-300, 900-300, 300, 300).setZoom(0.05).setName('mini');
-        this.minimap.setBackgroundColor(0x002244);
+        this.minimap = this.cameras.add(1700-300, 900-400, 300, 300).setZoom(0.05).setName('mini');
+        this.minimap.setBackgroundColor(0x3e4f3c);
         this.minimap.scrollX = 2800;
         this.minimap.scrollY = 2800;
+        this.minimap.ignore(worldLayer);
+        this.minimap.ignore(this.collisionLayer);
+
         /*
          * Mouse controller
          */
@@ -285,6 +288,7 @@ export default class GameScene extends Phaser.Scene {
             }
         }];
         this.hudTable = this.createHud(data);
+        this.minimap.ignore(this.hudTable);
 
         // This stay be at the end
         this.socketHandling()
