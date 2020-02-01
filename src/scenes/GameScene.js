@@ -78,9 +78,32 @@ export default class GameScene extends Phaser.Scene {
                 for (let buildingId in data.buildings) {
                     let baseSprite = this.physics.add.sprite(0, 0, data.buildings[buildingId].type);
                     baseSprite.setInteractive();
-                    baseSprite.on('pointerdown', this.actionButton('do fancy stuff', buildingId, () => {
-                        alert('callback!');
-                    }), this);
+                    baseSprite.on('pointerdown', this.actionButton([
+                        {
+                            text: 'do fancy stuff',
+                            callback: () => {
+                                alert('callback!');
+                            }
+                        },
+                        {
+                            text: 'do fancy stuff2',
+                            callback: () => {
+                                alert('callback2!');
+                            }
+                        },
+                        {
+                            text: 'do fancy stuff3',
+                            callback: () => {
+                                alert('callback3!');
+                            }
+                        },
+                        {
+                            text: 'do fancy stuff4',
+                            callback: () => {
+                                alert('callback4!');
+                            }
+                        }
+                    ], buildingId), this);
 
                     var baseText = this.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
                     var baseContainer = this.add.container(
@@ -401,30 +424,42 @@ export default class GameScene extends Phaser.Scene {
     /**
      * Adds an action button which shows when clicking on a building.
      *
-     * @param text The text to write on the button
+     * @param action An array of objects containing a "text" and "callback" key.
+     *        text The text to write on the button
+     *        callback A callback to call on click on the action button.
      * @param buildingId The buildingId of the building. Used to set which building is selected currently.
-     * @param callback A callback to call on click on the action button.
      */
-    actionButton(text, buildingId, callback) {
+    actionButton(actions, buildingId) {
         return function(pointer){
-            if (this.selectedBuilding === null) {
-                const btnBuild = this.add.image(pointer.x, pointer.y, 'dialog_small').setOrigin(0, 0);
-                const textBuild = this.add.text(pointer.x + 25, pointer.y + 15, text, {
-                    font: '17px Courier',
-                    fill: '#fff',
-                    strokeThickness: 3,
-                    stroke: '#000',
-                    fontWeight: 'bold'
-                });
-                btnBuild.setInteractive();
-                btnBuild.on('pointerdown', () => {
-                    callback();
-                    this.selectedBuilding = null;
-                    btnBuild.destroy();
-                    textBuild.destroy();
-                }, this);
-                this.selectedBuilding = buildingId;
-            }
+            // Use a container so we can destroy all UI elements with one call.
+            let actionContainer = this.add.container(
+                pointer.x,
+                pointer.y
+            );
+            actions.forEach((action, index) => {
+                // Prohibit multiple selections of buildings.
+                if (this.selectedBuilding === null) {
+                    let baseY = index * 40;
+                    const btnBuild = this.add.image(0, baseY, 'dialog_small').setOrigin(0, 0);
+                    const textBuild = this.add.text(0 + 25, baseY + 15, action.text, {
+                        font: '17px Courier',
+                        fill: '#fff',
+                        strokeThickness: 3,
+                        stroke: '#000',
+                        fontWeight: 'bold'
+                    });
+                    actionContainer.add(btnBuild);
+                    actionContainer.add(textBuild);
+                    btnBuild.setInteractive();
+                    btnBuild.on('pointerdown', () => {
+                        // Call the given callback function, free next building selection and clear created objects.
+                        action.callback();
+                        this.selectedBuilding = null;
+                        actionContainer.destroy();
+                    }, this);
+                }
+            });
+            this.selectedBuilding = buildingId;
         };
     }
 };
