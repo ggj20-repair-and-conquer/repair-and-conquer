@@ -68,8 +68,19 @@ export default class GameScene extends Phaser.Scene {
                     var baseContainer = that.add.container(data.buildings[buildingId].x, data.buildings[buildingId].y, [baseText, baseSprite]);
                     that.physics.world.enable(baseContainer);
                 }
+            } else if (data.type == 'updateUnits') {
+                for (let unitId in data.units) {
+                    let unitX = data.units[unitId].x;
+                    let unitY = data.units[unitId].y;
 
-                console.log(data.player.money);
+                    if (that.units[unitId]) {
+                        that.units[unitId].x = unitX;
+                        that.units[unitId].y = unitY;
+                    } else {
+                        that.units[unitId] = new Unit(that, unitX, unitY, '');
+                        that.add.existing(that.units[unitId]);
+                    }
+                }
             }
         });
 
@@ -212,18 +223,6 @@ export default class GameScene extends Phaser.Scene {
             }
         }, this);
 
-        /*
-         * Unit Controller
-         */
-
-        for ( let i = 0; i  < 10; i++) {
-            let unit = new Unit(this, 500+i*100, 500, '');
-            this.add.existing(unit);
-            this.units.push(unit);
-        }
-
-       // this.physics.add.collider(this.units, worldLayer);
-
         this.input.on('pointerdown', (pointer) => {
            if (pointer.rightButtonDown()) {
                this.controlledUnits.forEach((i) => {
@@ -236,9 +235,14 @@ export default class GameScene extends Phaser.Scene {
         // @todo Replace data with data from the server or hard coded controls
         let data = [{
             icon: 'icon_dummy',
-            text: '$ Rep Unit',
+            text: 'Build Soldier',
             clickCallback: () => {
-                alert('Clicked Item 1');
+                socket.sendToServer({
+                    type: 'build',
+                    unit: 'soldier',
+                    gameId: socket.gameData.gameId,
+                    playerId: socket.gameData.playerId
+                });
             }
         },{
             icon: 'icon_dummy',
@@ -371,8 +375,6 @@ export default class GameScene extends Phaser.Scene {
                 .setDepth(0);
             this.hudHovered = false;
         }, this).on('cell.click', function (cellContainer, cellIndex) {
-            // Call the callback we get via data
-            console.log(data);
             data[cellIndex].clickCallback();
         }, this);
 

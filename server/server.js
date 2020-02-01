@@ -5,6 +5,7 @@ let gameData = {};
 let gameCounter = 0;
 let playerCounter = 0;
 let buildingCounter = 0;
+let unitCounter = 0;
 
 function sendToClient(client, data) {
     client.send(JSON.stringify(data));
@@ -30,6 +31,7 @@ wss.on('connection', function connection(ws) {
             gameData[gameId] = {
                 name: msgObject.name,
                 players: {},
+                units: {},
                 chat: [],
                 started: false,
                 map: [],
@@ -158,6 +160,23 @@ wss.on('connection', function connection(ws) {
                     map: gameData[gameId].map
                 }
             );
+        } else if (msgObject.type == 'build') {
+            let gameId = msgObject.gameId;
+            let playerId = msgObject.playerId;
+
+            unitCounter++;
+            let unitId = randomNumber() + '' + unitCounter;
+
+            gameData[gameId].units[unitId] = {
+                x: 100,
+                y: 100,
+                playerId: playerId,
+                health: 100
+            };
+
+            wss.clients.forEach(function each(client) {
+                sendToClient(client, {type: 'updateUnits', units: gameData[gameId].units});
+            });
         }
     }).on('close', function close() {
 
