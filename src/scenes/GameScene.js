@@ -26,7 +26,7 @@ export default class GameScene extends Phaser.Scene {
     preload() {
         // load images
         this.load.image("tiles", "assets/tilesets/overworld_tileset_grass.png");
-        this.load.tilemapTiledJSON("map", "assets/tilemaps/mapTemplate.json");
+        this.load.tilemapTiledJSON("map", "assets/tilemaps/map(old).json");
     }
 
     socketHandling() {
@@ -83,6 +83,9 @@ export default class GameScene extends Phaser.Scene {
         const tileset = map.addTilesetImage("grass_biome", "tiles");
         // Map World Layer
         const worldLayer = map.createStaticLayer("world", tileset, 0, 0).setScale(mapScale);
+
+
+
         // Create world bounds
         this.physics.world.setBounds(0, 0, 10000, 10000);
         game.input.mouse.disableContextMenu();
