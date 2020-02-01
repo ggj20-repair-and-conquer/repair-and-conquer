@@ -1,7 +1,6 @@
 import 'phaser';
 import config from '../config/config.js';
 
-
 export default class MenuScene extends Phaser.Scene {
     constructor() {
         super('Menu');
@@ -15,22 +14,20 @@ export default class MenuScene extends Phaser.Scene {
     }
 
     create() {
-
-        const background = this.add.image(config.width/2, config.height/2, 'background');
-        background.setDisplaySize(config.width, config.height);
-
-        const logo = this.add.image(config.width/2, config.height/2, 'logo');
+        const logo = this.add.image(config.width/2, config.height/2 - 150, 'logo');
         logo.setInteractive();
 
-        const btnCreateGame = this.add.image(400, 750, 'btn_create');
+        const btnCreateGame = this.add.image(400, 700, 'btn_create');
         btnCreateGame.setInteractive();
         btnCreateGame.on('pointerdown', () => {
+            clickSound.play();
             this.scene.start('CreateGame');
         }, this);
 
-        const btnJoinGame = this.add.image(1300, 750, 'btn_join');
+        const btnJoinGame = this.add.image(1300, 700, 'btn_join');
         btnJoinGame.setInteractive();
         btnJoinGame.on('pointerdown', () => {
+            clickSound.play();
             this.scene.start('GameList');
         }, this);
     }
