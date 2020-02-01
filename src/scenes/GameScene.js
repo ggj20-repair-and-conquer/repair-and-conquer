@@ -120,7 +120,8 @@ export default class GameScene extends Phaser.Scene {
         /*
          * Mouse controller
          */
-        this.aim = this.physics.add.sprite(600, 700, 'aim');
+        this.aim = this.physics.add.image(600, 700, 'aim');
+        this.aim.visible = false;
         this.aim.setOrigin(0.5, 0.5).setDisplaySize(15, 15).setCollideWorldBounds(true);
 
         this.input.on('pointermove', (pointer) => {
@@ -174,14 +175,32 @@ export default class GameScene extends Phaser.Scene {
         }, this);
 
         this.input.on('pointerup', (pointer) => {
+
             if (pointer.leftButtonReleased()) {
                 if (this.rect !== null) {
                     this.selector.visible = false;
-                    for (let i = 0; i < this.units.length; i++) {
-                        if (this.rect.contains(this.units[i].x, this.units[i].y)) {
-                            this.controlledUnits.push(i);
+                    // for (let i = 0; i < this.units.length; i++) {
+                    //     if (this.rect.contains(this.units[i].x, this.units[i].y)) {
+                    //         this.controlledUnits.push(i);
+                    //     }
+                    // }
+
+                    let findUnits = this.physics.overlapRect(
+                        this.rect.x,
+                        this.rect.y,
+                        this.rect.width,
+                        this.rect.height,
+                    );
+
+                    this.controlledUnits = findUnits.forEach((body) => {
+                        if (body.gameObject.type === 'Sprite') {
+                            // this.units[body.gameoObject.unitId] // =>
+                            console.log(body.gameObject);
+
+                            //body.moveTo(this.);
                         }
-                    }
+                    });
+
                     this.rectGraphics.destroy();
                 }
             }
