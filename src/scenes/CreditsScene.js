@@ -48,6 +48,14 @@ export default class CreditsScene extends Phaser.Scene {
           align: 'center'
         };
 
+        const creditsLinkStyle = {
+          font: '14px Serif',
+          fill: '#ffffff',
+          fontWeight: 'bold',
+          align: 'left'
+        };
+
+
         let creditText = 'This game was made by Dominik Meyer, Martin Jainta, Niklas Heer, Johannes Witt, ' +
         '\nJasbir Singh, Sushanth S Shetty, Thilo Hettmer and Rustam Miyliyev' +
         '\n\nClick here to return to Mainmenu and start the game again.';
@@ -58,22 +66,15 @@ export default class CreditsScene extends Phaser.Scene {
           this.scene.start('Menu');
         }, this);
        
-        let attributionText = '\nThank you for playing ' +
-            '\n\nSources for sprites used in the game: \n' +
-            'https://opengameart.org/\n' +
-            'https://www.freepik.com/ Designed by macrovector\n' +
-            '\n' +
-            'Music and sounds: \n' +
-            'https://filmmusic.io "Gothamlicious" by Kevin MacLeod (https://incompetech.com)\n' +
-            'https://freesfx.co.uk\n' +
-            'http://soundbible.com\n' +
-            'https://freesound.org\n' +
-            'https://freesound.org/people/EFlexMusic/sounds/396270/\n' +
-            'https://freesound.org/people/LittleRobotSoundFactory/sounds/270403/\n' +
-            'https://freesound.org/people/rezyma/sounds/475148/\n' +
-            'https://freesound.org/people/theuncertainman/sounds/402020/\n' +
-            'https://freesound.org/people/josecruz98/sounds/393019/\n' +
-            'https://freesound.org/people/Ashowal/sounds/171222/';
+        let attributionText = '\nThank you for playing ';
         this.add.text(680, 40, attributionText, attributionStyle);
+
+        let creditsLinks ='Assets taken from :- https://opengameart.org/ | ' +
+            'https://www.freepik.com/ Designed by macrovector | ' +
+            'https://filmmusic.io "Gothamlicious" by Kevin MacLeod (https://incompetech.com) |' +
+            'https://freesfx.co.uk | ' +
+            'http://soundbible.com | ' +
+            'https://freesound.org';
+        this.add.text(100, config.height/2 + 420, creditsLinks, creditsLinkStyle);
     }
 };
