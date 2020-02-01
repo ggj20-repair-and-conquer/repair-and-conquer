@@ -35,7 +35,7 @@ export default class GameScene extends Phaser.Scene {
          * Load TileImages and TileSets
          */
         this.load.image("tiles", "assets/tilesets/mountain_landscape.png");
-        this.load.tilemapTiledJSON("map", "assets/tilemaps/mountainMapTemplate.json");
+        this.load.tilemapTiledJSON("map", "assets/tilemaps/MountainMap.json");
 
         this.load.image('base', 'assets/base.png');
         this.load.image('soldier', 'assets/soldier.png');
@@ -155,24 +155,35 @@ export default class GameScene extends Phaser.Scene {
         const worldTileSet = this.map.addTilesetImage("mountain_landscape", "tiles");
 
         /**
-         * Create Map with Objects
+         * Create Map Layers
          */
-        // Map World Layer
-        const worldLayer = this.map.createDynamicLayer("World", worldTileSet, 0, 0).setScale(mapScale);
-        this.collisionLayer = this.map.createBlankDynamicLayer("Collision", worldTileSet, 0, 0).setScale(mapScale);
+        const GroundLayer1 = this.map.createStaticLayer("GroundLayer1", worldTileSet, 0, 0).setScale(mapScale);
+        const RockLayer = this.map.createStaticLayer("RockLayer", worldTileSet, 0, 0).setScale(mapScale);
+        const GrassLayer = this.map.createStaticLayer("GrassLayer", worldTileSet, 0, 0).setScale(mapScale);
+        const ObjectLayer = this.map.createStaticLayer("ObjectLayer", worldTileSet, 0, 0).setScale(mapScale);
+        const TreeLayer1 = this.map.createStaticLayer("TreeLayer1", worldTileSet, 0, 0).setScale(mapScale);
+        const TreeLayer2 = this.map.createStaticLayer("TreeLayer2", worldTileSet, 0, 0).setScale(mapScale);
+        const TreeLayer3 = this.map.createStaticLayer("TreeLayer3", worldTileSet, 0, 0).setScale(mapScale);
+
+        /**
+         * Unit Collider
+         */
+        this.physics.add.collider(this.units, RockLayer);
+        this.physics.add.collider(this.units, TreeLayer1);
+        this.physics.add.collider(this.units, TreeLayer2);
+        this.physics.add.collider(this.units, TreeLayer3);
 
         /**
          * Camera
          */
         this.physics.world.setBounds(0, 0, 10000, 10000);
-        this.minimap = this.cameras.add(1700-300, 900-400, 300, 300).setZoom(0.05).setName('mini');
+        this.minimap = this.cameras.add(1700-300, 900-400, 150, 150).setZoom(0.05).setName('mini');
         this.minimap.setBackgroundColor(0x3e4f3c);
-        this.minimap.scrollX = 2800;
-        this.minimap.scrollY = 2800;
+        this.minimap.scrollX = 1400;
+        this.minimap.scrollY = 1400;
         // Ignore party of the map to improve performance
         this.minimap.ignore(worldTileSet);
-        this.minimap.ignore(worldLayer);
-        this.minimap.ignore(this.collisionLayer);
+        this.minimap.ignore(GroundLayer1);
         // Create a rectangle as the view border in the minimap which we move in update()
         this.minimapRect = new Phaser.Geom.Rectangle(
             0 - 10,
