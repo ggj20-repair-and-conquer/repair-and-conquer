@@ -93,7 +93,7 @@ export default class GameScene extends Phaser.Scene {
         /**
          * Map Config
          */
-        const mapScale = 5;
+        const mapScale = 1;
 
         const map = this.make.tilemap({ key: "map" });
         map.setCollisionByProperty({ collides: true });
