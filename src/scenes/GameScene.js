@@ -211,12 +211,12 @@ export default class GameScene extends Phaser.Scene {
                             });
                         }
 
-                        this.physics.add.collider(this.units[unitId], this.RockLayer, () => {
-
-                        });
-                        this.physics.add.collider(this.units[unitId], this.TreeLayer1);
-                        this.physics.add.collider(this.units[unitId], this.TreeLayer2);
-                        this.physics.add.collider(this.units[unitId], this.TreeLayer3);
+                        this.physics.add.collider(this.units[unitId], this.RockLayer);
+                        if (unit.type !== 'aircraft') {
+                            this.physics.add.collider(this.units[unitId], this.TreeLayer1);
+                            this.physics.add.collider(this.units[unitId], this.TreeLayer2);
+                            this.physics.add.collider(this.units[unitId], this.TreeLayer3);
+                        }
                     }
                 }
             } else if (data.type == 'updateUnitPositions') {
@@ -278,7 +278,7 @@ export default class GameScene extends Phaser.Scene {
         const mapScale = 1;
         this.map = this.make.tilemap({ key: "map" });
         this.map.setCollisionByProperty({ collides: true });
-
+        this.map.setCollisionBetween(0,500);
         // Tileset Config
         this.worldTileSet = this.map.addTilesetImage("mountain_landscape", "tiles");
 
@@ -286,12 +286,16 @@ export default class GameScene extends Phaser.Scene {
          * Create Map Layers
          */
         this.GroundLayer1 = this.map.createStaticLayer("GroundLayer1", this.worldTileSet, 0, 0).setScale(mapScale);
-        this.RockLayer = this.map.createStaticLayer("RockLayer", this.worldTileSet, 0, 0).setScale(mapScale);
-        this.GrassLayer = this.map.createStaticLayer("GrassLayer", this.worldTileSet, 0, 0).setScale(mapScale);
-        this.ObjectLayer = this.map.createStaticLayer("ObjectLayer", this.worldTileSet, 0, 0).setScale(mapScale);
-        this.TreeLayer1 = this.map.createStaticLayer("TreeLayer1", this.worldTileSet, 0, 0).setScale(mapScale);
-        this.TreeLayer2 = this.map.createStaticLayer("TreeLayer2", this.worldTileSet, 0, 0).setScale(mapScale);
-        this.TreeLayer3 = this.map.createStaticLayer("TreeLayer3", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.RockLayer = this.map.createDynamicLayer("RockLayer", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.RockLayer.setCollisionBetween(0,500);
+        this.GrassLayer = this.map.createDynamicLayer("GrassLayer", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.ObjectLayer = this.map.createDynamicLayer("ObjectLayer", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.TreeLayer1 = this.map.createDynamicLayer("TreeLayer1", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.TreeLayer1.setCollisionBetween(0,500);
+        this.TreeLayer2 = this.map.createDynamicLayer("TreeLayer2", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.TreeLayer2.setCollisionBetween(0,500);
+        this.TreeLayer3 = this.map.createDynamicLayer("TreeLayer3", this.worldTileSet, 0, 0).setScale(mapScale);
+        this.TreeLayer3.setCollisionBetween(0,500);
 
         /**
          * Camera
@@ -380,6 +384,16 @@ export default class GameScene extends Phaser.Scene {
                 );
             }
         }, this);
+
+        this.input.keyboard.on('keydown_Q', (pointer) => {
+           this.test = this.physics.add.sprite(this.aim.x, this.aim.y, 'soldier');
+           this.RockLayer.setCollisionByProperty({'collides': true});
+           this.physics.add.collider(this.test, this.RockLayer);
+        });
+
+        this.input.keyboard.on('keydown_W', (pointer) => {
+            this.physics.moveTo(this.test, this.aim.x, this.aim.y, 200);
+        });
 
         this.input.on('pointerup', (pointer) => {
             if (pointer.leftButtonReleased()) {
