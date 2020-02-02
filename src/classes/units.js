@@ -33,7 +33,7 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.targetX = 0;
         this.targetY = 0;
         this.attackTarget = null;
-        this.attackRadius = 10;
+        this.attackRadius = 100;
         this.hitTimer = 0;
 
         //enable World bound collision and stop
@@ -55,6 +55,12 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.setTarget(x, y);
         this.state = 2;
         w.physics.moveTo(this, x, y, this.speed);
+        this.attackTarget = null;
+    }
+
+    startMoveToAttack(target) {
+        this.state = 4;
+        this.attackTarget = target;
     }
 
     interpPosition(x, y) {
@@ -71,6 +77,15 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.hitTimer = 25;
         let bounceX = this.body.bounce.x;
         let bounceY = this.body.bounce.y;
+
+        console.log("X: " + this.body.bounce.x);
+        console.log("Y: " + this.body.bounce.y);
+
+        if (Math.abs(bounceX) > Math.abs(bounceY)) {
+            this.body.setBounce(0, bounceX * -1);
+        } else {
+            this.body.setBounce(bounceY * -1, 0);
+        }
     }
 
     update(time, delta) {
@@ -91,21 +106,18 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         }
 
         if (this.state == 3 && this.attackTarget != null) {
-            if(Phaser.Math.Distance.Between(this.x,this.y,this.attackTarget.x, this.attackTarget.y) > this.attackRadius){
-                this.setTarget(this.attackTarget.x,this.attackTarget.y);
-                this.scene.physics.moveTo(this, this.targetX,this.targetY, this.speed);
-                this.state = 4;
+            if (Phaser.Math.Distance.Between(this.x, this.y, this.attackTarget.x, this.attackTarget.y) > this.attackRadius) {
+                this.setTarget(this.attackTarget.x, this.attackTarget.y);
+                this.scene.physics.moveTo(this, this.targetX, this.targetY, this.speed);
             } else {
-
-            }
-            //attack
-            if (this.state == 4 && this.attackTarget != null) {
-                if(Phaser.Math.Distance.Between(this.x,this.y,this.targetX,this.targetY) < this.attackRadius){
-                    this.stopAction();
-                    this.state = 3;
-                }
+                this.stopAction();
+                this.state = 4;
             }
         }
 
+        //attack
+        if (this.state == 4 && this.attackTarget != null) {
+            console.log("do some dmgio");
+        }
     }
 }

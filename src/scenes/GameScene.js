@@ -1,5 +1,6 @@
 import 'phaser'
 import {Unit} from "../classes/units";
+import {Building} from "../classes/building";
 import config from '../config/config.js';
 
 export default class GameScene extends Phaser.Scene {
@@ -96,7 +97,15 @@ export default class GameScene extends Phaser.Scene {
                             unitType = 'aircraft';
                         }
 
-                        let baseSprite = this.physics.add.sprite(0, 0, buildType);
+                        // let baseSprite = this.physics.add.sprite(0, 0, buildType);
+                        let baseSprite = new Building(
+                            this,
+                            0,
+                            0,
+                            buildType
+                        );
+                        baseSprite.playerId = data.buildings[buildingId].playerId;
+                        baseSprite.buildingType = buildType;
                         baseSprite.setInteractive();
 
                         if (unitType && data.buildings[buildingId].playerId == socket.gameData.playerId) {
@@ -216,6 +225,7 @@ export default class GameScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown_SPACE', (event) => {
             this.lockMovement = !this.lockMovement;
+            console.log(this.buildings);
         });
       
         /*
@@ -296,6 +306,7 @@ export default class GameScene extends Phaser.Scene {
                 this.rectGraphics.fillRectShape(this.rect);
                 this.rectGraphics.strokeRectShape(this.rect);
             }
+
         }, this);
 
         /*
