@@ -59,13 +59,13 @@ export default class GameScene extends Phaser.Scene {
 
         this.load.image('soldier', 'assets/soldier.png');
         this.load.image('soldier_to_right', 'assets/soldier.png');
-        this.load.image('soldier_to_left', 'assets/soldier.png');
+        this.load.image('soldier_to_left', 'assets/soldier_to_left.png');
         this.load.image('tank', 'assets/tank.png');
         this.load.image('tank_to_right', 'assets/tank.png');
-        this.load.image('tank_to_left', 'assets/tank.png');
+        this.load.image('tank_to_left', 'assets/tank_to_left.png');
         this.load.image('aircraft', 'assets/aircraft.png');
         this.load.image('aircraft_to_right', 'assets/aircraft.png');
-        this.load.image('aircraft_to_left', 'assets/aircraft.png');
+        this.load.image('aircraft_to_left', 'assets/aircraft_to_left.png');
     }
 
     socketHandling() {

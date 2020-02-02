@@ -71,7 +71,11 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
     }
 
     calcDirectionSprite() {
-        if (this.x > this.targetX) {
+        if (this.x == this.targetX) {
+            return;
+        }
+
+        if (this.x < this.targetX) {
             // We move to the right
             this.setTexture(this.unitType + '_to_right');
         } else {
