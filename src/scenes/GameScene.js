@@ -54,13 +54,6 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('soldier', 'assets/soldier.png');
         this.load.image('tank', 'assets/tank.png');
         this.load.image('aircraft', 'assets/aircraft.png');
-
-        this.load.image('icon_dummy', 'assets/icons/icon_dummy.png');
-        this.load.image('icon_repair', 'assets/icons/icon_repair.png');
-        this.load.image('icon_damage', 'assets/icons/icon_damage.png');
-        this.load.image('icon_tank', 'assets/icons/icon_tank.png');
-        this.load.image('icon_fighter_jets', 'assets/icons/icon_fighter_jets.png');
-        this.load.image('icon_money', 'assets/icons/icon_treasure.png');
     }
 
     socketHandling() {
