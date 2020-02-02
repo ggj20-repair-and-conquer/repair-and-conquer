@@ -78,12 +78,15 @@ export default class GameScene extends Phaser.Scene {
         let that = this;
 
         socket.getFromServer((data) => {
-            if (data.type == 'initGame') {
-
-            } else if (data.type == 'updateGame') {
+            if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
                     if (this.buildings[buildingId]) {
 
+                        // this.scene.start('Victory');
+                        // this.scene.start('Loser');
+                        if (this.buildings[buildingId].health <= 0) {
+
+                        }
                     } else {
                         let buildType = data.buildings[buildingId].type;
                         let unitType = '';
@@ -102,7 +105,7 @@ export default class GameScene extends Phaser.Scene {
                         if (unitType && data.buildings[buildingId].playerId == socket.gameData.playerId) {
                             baseSprite.on('pointerdown', this.actionButton([
                                 {
-                                    text: 'Build',
+                                    text: 'Build for $500',
                                     callback: () => {
                                         socket.sendToServer({
                                             type: 'build',
@@ -119,7 +122,7 @@ export default class GameScene extends Phaser.Scene {
                             baseSprite.on('pointerdown', () => this.clearActionContainers());
                         }
 
-                        var baseText = this.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
+                        var baseText = this.add.text(-50, -50, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
                         var baseContainer = this.add.container(
                             data.buildings[buildingId].x,
                             data.buildings[buildingId].y,
@@ -200,7 +203,7 @@ export default class GameScene extends Phaser.Scene {
             });
 
             this.physics.add.collider(this.units, this.units);
-        }, 2000);
+        }, 1000);
     }
 
     /**

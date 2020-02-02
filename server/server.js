@@ -96,6 +96,36 @@ wss.on('connection', function connection(ws) {
             gameData[gameId].buildings = {};
             let localPlayerCounter = 0;
 
+            let buildingPositions = [];
+            buildingPositions[1] = [];
+            buildingPositions[1][0] = [390, 390];
+            buildingPositions[1][1] = [300, 300];
+            buildingPositions[1][2] = [540, 390];
+            buildingPositions[1][3] = [300, 510];
+
+            buildingPositions[2] = [];
+            buildingPositions[2][0] = [1410, 390];
+            buildingPositions[2][1] = [1320, 300];
+            buildingPositions[2][2] = [1560, 390];
+            buildingPositions[2][3] = [1320, 510];
+
+            buildingPositions[3] = [];
+            buildingPositions[3][0] = [2400, 1470];
+            buildingPositions[3][1] = [2310, 1380];
+            buildingPositions[3][2] = [2550, 1470];
+            buildingPositions[3][3] = [2310, 1590];
+
+            buildingPositions[4] = [];
+            buildingPositions[4][0] = [2460, 2460];
+            buildingPositions[4][1] = [2370, 2370];
+            buildingPositions[4][2] = [2610, 2460];
+            buildingPositions[4][3] = [2370, 2580];
+
+            let playerCounter = 0;
+            for (let playerId in gameData[gameId].players) {
+                playerCounter++;
+            }
+
             for (let playerId in gameData[gameId].players) {
                 localPlayerCounter++;
                 gameData[gameId].players[playerId].lastupdate = new Date().getTime();
@@ -104,39 +134,9 @@ wss.on('connection', function connection(ws) {
                 array.forEach(function (buildingType, index) {
                     buildingCounter++;
                     let buildingId = randomNumber() + '' + buildingCounter;
-                    let x;
-                    let y;
 
-                    if (localPlayerCounter == 1) {
-                        if (index == 0) {
-                            x = 200;
-                            y = 200;
-                        } else if (index == 1) {
-                            x = 250;
-                            y = 200;
-                        } else if (index == 2) {
-                            x = 200;
-                            y = 300;
-                        } else if (index == 3) {
-                            x = 250;
-                            y = 350;
-                        }
-                    } else if (localPlayerCounter == 2) {
-                        if (index == 0) {
-                            x = 800;
-                            y = 800;
-                        } else if (index == 1) {
-                            x = 850;
-                            y = 800;
-                        } else if (index == 2) {
-                            x = 800;
-                            y = 900;
-                        } else if (index == 3) {
-                            x = 850;
-                            y = 950;
-                        }
-                    } else if (localPlayerCounter == 3) {
-                    }
+                    let x = buildingPositions[localPlayerCounter][index][0];
+                    let y = buildingPositions[localPlayerCounter][index][1];
 
                     gameData[gameId].buildings[buildingId] = {
                         x: x,
@@ -146,6 +146,10 @@ wss.on('connection', function connection(ws) {
                         health: 100
                     };
                 });
+
+                if (playerCounter == 2 && localPlayerCounter == 1) {
+                    localPlayerCounter = 3;
+                }
             }
 
             wss.clients.forEach(function each(client) {
@@ -172,13 +176,21 @@ wss.on('connection', function connection(ws) {
                 }
             );
         } else if (msgObject.type == 'initGame') {
-            let gameId = msgObject.gameId;
             sendToClient(
                 ws,
                 {
                     type: 'initGame',
                 }
             );
+        } else if (msgObject.type == 'attackBuilding') {
+            let gameId = msgObject.gameId;
+            let buildingId = msgObject.buildingId;
+
+            if (gameData[gameId].buildings[buildingId] - 16 <= 0) {
+                gameData[gameId].buildings[buildingId].health = 0;
+            } else {
+                gameData[gameId].buildings[buildingId].health = gameData[gameId].buildings[buildingId] - 16;
+            }
         } else if (msgObject.type == 'build') {
             let gameId = msgObject.gameId;
             let playerId = msgObject.playerId;
@@ -193,8 +205,8 @@ wss.on('connection', function connection(ws) {
             let unitId = 'A' + randomNumber() + '' + unitCounter;
 
             gameData[gameId].units[unitId] = {
-                x: building.x,
-                y: building.y,
+                x: building.x + 50,
+                y: building.y + 50,
                 playerId: playerId,
                 health: 100,
                 type: msgObject.unit
