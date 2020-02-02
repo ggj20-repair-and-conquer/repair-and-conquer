@@ -29,6 +29,9 @@ export default class GameScene extends Phaser.Scene {
         this.selectedBuilding = null;
 
         this.controllingSprites = [];
+        // All current action containers
+        this.actionContainers = [];
+        this.actionContainerOpen = false;
     }
 
     /**
@@ -79,7 +82,9 @@ export default class GameScene extends Phaser.Scene {
 
             } else if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
-                    if (!this.buildings[buildingId]) {
+                    if (this.buildings[buildingId]) {
+
+                    } else {
                         let buildType = data.buildings[buildingId].type;
                         let unitType = '';
 
@@ -94,7 +99,7 @@ export default class GameScene extends Phaser.Scene {
                         let baseSprite = this.physics.add.sprite(0, 0, buildType);
                         baseSprite.setInteractive();
 
-                        if (unitType) {
+                        if (unitType && data.buildings[buildingId].playerId == socket.gameData.playerId) {
                             baseSprite.on('pointerdown', this.actionButton([
                                 {
                                     text: 'Build',
@@ -103,11 +108,15 @@ export default class GameScene extends Phaser.Scene {
                                             type: 'build',
                                             unit: unitType,
                                             gameId: socket.gameData.gameId,
-                                            playerId: socket.gameData.playerId
+                                            playerId: socket.gameData.playerId,
+                                            building: data.buildings[buildingId]
                                         });
                                     }
                                 }
                             ], buildingId), this);
+                        } else {
+                            // Clear containers if we click the base since it has no actions
+                            baseSprite.on('pointerdown', () => this.clearActionContainers());
                         }
 
                         var baseText = this.add.text(-25, -25, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
@@ -118,10 +127,16 @@ export default class GameScene extends Phaser.Scene {
                         );
                         this.physics.world.enable(baseContainer);
                         this.buildings[buildingId] = data.buildings[buildingId];
+
+                        if (this.buildings[buildingId].playerId == socket.gameData.playerId) {
+                            this.cameras.main.scrollX = this.buildings[buildingId].x - 850;
+                            this.cameras.main.scrollY = this.buildings[buildingId].y - 450;
+                        }
                     }
                 }
 
                 this.moneyText.text = '$ ' + data.player.money;
+                socket.gameData.playerMoney = data.player.money;
             } else if (data.type == 'updateUnits') {
                 for (let unitId in data.units) {
                     let unit = data.units[unitId];
@@ -356,17 +371,15 @@ export default class GameScene extends Phaser.Scene {
         });
 
         /*
-         * Overlay
+         * Destroy every actionContainer on a new click on the map.
+         * This wont trigger if clicked on a sprite etc.
          */
-
-        /*
-        socket.sendToServer({
-            type: 'build',
-            unit: 'tank',
-            gameId: socket.gameData.gameId,
-            playerId: socket.gameData.playerId
+        this.input.on('pointerdown', (pointer, gameObject) => {
+            if (Object.keys(gameObject).length === 0 && this.actionContainerOpen == true) {
+                this.clearActionContainers();
+                this.actionContainerOpen = false;
+            }
         });
-         */
 
 
         this.moneyText = this.add.text(0, 0, "Money!", {
@@ -448,35 +461,38 @@ export default class GameScene extends Phaser.Scene {
      */
     actionButton(actions, buildingId) {
         return function(pointer){
+            // Clear containers so we can create new ones for a newly clicked building
+            this.clearActionContainers();
             // Use a container so we can destroy all UI elements with one call.
             let actionContainer = this.add.container(
-                pointer.x,
-                pointer.y
+                this.aim.x,
+                this.aim.y
             );
+            this.actionContainers.push(actionContainer);
             actions.forEach((action, index) => {
-                // Prohibit multiple selections of buildings.
-                if (this.selectedBuilding === null) {
-                    let baseY = index * 40;
-                    const btnBuild = this.add.image(0, baseY, 'dialog_small').setOrigin(0, 0);
-                    const textBuild = this.add.text(0 + 25, baseY + 15, action.text, {
-                        font: '17px Courier',
-                        fill: '#fff',
-                        strokeThickness: 3,
-                        stroke: '#000',
-                        fontWeight: 'bold'
-                    });
-                    actionContainer.add(btnBuild);
-                    actionContainer.add(textBuild);
-                    btnBuild.setInteractive();
-                    btnBuild.on('pointerdown', () => {
-                        // Call the given callback function, free next building selection and clear created objects.
-                        action.callback();
-                        this.selectedBuilding = null;
-                        actionContainer.destroy();
-                    }, this);
-                }
+                let baseY = index * 40;
+                const btnBuild = this.add.image(0, baseY, 'dialog_small').setOrigin(0, 0);
+                const textBuild = this.add.text(0 + 25, baseY + 15, action.text, {
+                    font: '17px Courier',
+                    fill: '#fff',
+                    strokeThickness: 3,
+                    stroke: '#000',
+                    fontWeight: 'bold'
+                });
+                actionContainer.add(btnBuild);
+                actionContainer.add(textBuild);
+                btnBuild.setInteractive();
+                btnBuild.on('pointerdown', () => {
+                    // Call the given callback function, free next building selection and clear created objects.
+                    action.callback();
+                    actionContainer.destroy();
+                }, this);
             });
-            this.selectedBuilding = buildingId;
+            this.actionContainerOpen = true;
         };
+    }
+
+    clearActionContainers() {
+        this.actionContainers.forEach((container) => container.destroy());
     }
 };
