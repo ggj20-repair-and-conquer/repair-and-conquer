@@ -47,14 +47,25 @@ export default class GameScene extends Phaser.Scene {
 
         this.load.image('base', 'assets/base.png');
         this.load.image('factory', 'assets/factory.png');
+        this.load.image('base_damaged', 'assets/base_damaged.png');
+        this.load.image('factory_damaged', 'assets/factory_damaged.png');
+        this.load.image('airbase_damaged', 'assets/airbase_damaged.png');
+        this.load.image('barracks_damaged', 'assets/barracks_damaged.png');
+
         this.load.image('barracks', 'assets/barracks.png');
         this.load.image('airbase', 'assets/airbase.png');
 
         this.load.image('dialog_small', 'assets/buttons/dialog_small.png');
 
         this.load.image('soldier', 'assets/soldier.png');
+        this.load.image('soldier_to_right', 'assets/soldier.png');
+        this.load.image('soldier_to_left', 'assets/soldier_to_left.png');
         this.load.image('tank', 'assets/tank.png');
+        this.load.image('tank_to_right', 'assets/tank.png');
+        this.load.image('tank_to_left', 'assets/tank_to_left.png');
         this.load.image('aircraft', 'assets/aircraft.png');
+        this.load.image('aircraft_to_right', 'assets/aircraft.png');
+        this.load.image('aircraft_to_left', 'assets/aircraft_to_left.png');
     }
 
     socketHandling() {
@@ -78,7 +89,7 @@ export default class GameScene extends Phaser.Scene {
 
                 for (let buildingId in data.buildings) {
                     if (this.buildings[buildingId]) {
-                        this.buildings[buildingId].label.text = 'Live ' + data.buildings[buildingId].health;
+                        this.buildings[buildingId].label.text = '[' + data.buildings[buildingId].playerName + '] ' + data.buildings[buildingId].health;
 
                         if (data.buildings[buildingId].playerId == socket.gameData.playerId) {
                             if (data.buildings[buildingId].health <= 0) {
@@ -87,6 +98,18 @@ export default class GameScene extends Phaser.Scene {
                         } else {
                             if (data.buildings[buildingId].health > 0) {
                                 otherAliveBuilding = true;
+                            }
+                        }
+
+                        if (data.buildings[buildingId].health < 50) {
+                            if (data.buildings[buildingId].type == 'base') {
+                                this.buildings[buildingId].sprites.setTexture('base_damaged');
+                            } else if (data.buildings[buildingId].type == 'factory') {
+                                this.buildings[buildingId].sprites.setTexture('factory_damaged');
+                            } else if (data.buildings[buildingId].type == 'airbase') {
+                                this.buildings[buildingId].sprites.setTexture('airbase_damaged');
+                            } else if (data.buildings[buildingId].type == 'barracks') {
+                                this.buildings[buildingId].sprites.setTexture('barracks_damaged');
                             }
                         }
 
@@ -117,7 +140,7 @@ export default class GameScene extends Phaser.Scene {
 
                         let actions = [
                             {
-                                text: 'Repair for $250',
+                                text: 'Repair for $100',
                                 callback: () => {
                                     socket.sendToServer({
                                         type: 'repair',
@@ -162,7 +185,9 @@ export default class GameScene extends Phaser.Scene {
                             }
                         })
 
-                        var baseText = this.add.text(-100, -100, 'Live '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
+                        var baseText = this.add.text(-100, -100, 'Live ' + socket.gameData.player + data.buildings[buildingId].health, {
+                            font: '14px Courier', fill: '#fff', align: 'center'
+                        }).setBackgroundColor('#2D3C2C');
                         var baseContainer = this.add.container(
                             data.buildings[buildingId].x,
                             data.buildings[buildingId].y,
@@ -171,6 +196,7 @@ export default class GameScene extends Phaser.Scene {
                         this.physics.world.enable(baseContainer);
                         this.buildings[buildingId] = data.buildings[buildingId];
                         this.buildings[buildingId].label = baseText;
+                        this.buildings[buildingId].sprites = baseSprite;
 
                         if (this.buildings[buildingId].playerId == socket.gameData.playerId) {
                             this.cameras.main.scrollX = this.buildings[buildingId].x - 850;

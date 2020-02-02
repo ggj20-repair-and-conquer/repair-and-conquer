@@ -33,6 +33,7 @@ export default class GameListScene extends Phaser.Scene {
             if (data.type == 'joinGame') {
                 socket.gameData.gameId = data.gameId;
                 socket.gameData.playerId = data.playerId;
+                socket.gameData.playerName = data.playerName;
                 scene.start('GameLobby');
             }
         });

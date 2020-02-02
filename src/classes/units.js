@@ -61,12 +61,27 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.state = 2;
         w.physics.moveTo(this, x, y, this.speed);
         this.attackTarget = null;
+        this.calcDirectionSprite();
     }
 
     startMoveToAttack(target) {
         console.log("ATTACK!");
         this.state = 3;
         this.attackTarget = target;
+    }
+
+    calcDirectionSprite() {
+        if (this.x == this.targetX) {
+            return;
+        }
+
+        if (this.x < this.targetX) {
+            // We move to the right
+            this.setTexture(this.unitType + '_to_right');
+        } else {
+            // We move to the left
+            this.setTexture(this.unitType + '_to_left');
+        }
     }
 
     interpPosition(x, y) {
@@ -97,6 +112,7 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         } else if (this.hitTimer == 1 ) {
             this.body.reset(this.x, this.y);
             this.scene.physics.moveTo(this, this.targetX, this.targetY, this.speed / 2);
+            this.calcDirectionSprite();
             this.setTarget(this.targetX, this.targetY);
             this.hitTimer = 0;
             this.state = 2;
@@ -112,6 +128,7 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
             if (Phaser.Math.Distance.Between(this.x, this.y, this.attackTarget.x, this.attackTarget.y) > this.attackRadius) {
                 this.setTarget(this.attackTarget.x, this.attackTarget.y);
                 this.scene.physics.moveTo(this, this.targetX, this.targetY, this.speed);
+                this.calcDirectionSprite();
             } else {
                 this.stopAction();
                 this.state = 4;
