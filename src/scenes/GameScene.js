@@ -79,17 +79,28 @@ export default class GameScene extends Phaser.Scene {
 
         socket.getFromServer((data) => {
             if (data.type == 'updateGame') {
+                let destroyedCounter = 0;
+                let otherAliveBuilding = false;
+
                 for (let buildingId in data.buildings) {
                     if (this.buildings[buildingId]) {
+                        this.buildings[buildingId].label.text = 'Live ' + data.buildings[buildingId].health;
 
-                        // this.scene.start('Victory');
-                        // this.scene.start('Loser');
-                        if (this.buildings[buildingId].health <= 0) {
-
+                        if (data.buildings[buildingId].playerId == socket.gameData.playerId) {
+                            if (data.buildings[buildingId].health <= 0) {
+                                destroyedCounter++;
+                            }
+                        } else {
+                            if (data.buildings[buildingId].health > 0) {
+                                otherAliveBuilding = true;
+                            }
                         }
+
+                        this.buildings[buildingId].health = data.buildings[buildingId].health;
                     } else {
                         let buildType = data.buildings[buildingId].type;
                         let unitType = '';
+                        otherAliveBuilding = true;
 
                         if (buildType == 'barracks') {
                             unitType = 'soldier';
@@ -102,27 +113,43 @@ export default class GameScene extends Phaser.Scene {
                         let baseSprite = this.physics.add.sprite(0, 0, buildType);
                         baseSprite.setInteractive();
 
-                        if (unitType && data.buildings[buildingId].playerId == socket.gameData.playerId) {
-                            baseSprite.on('pointerdown', this.actionButton([
-                                {
-                                    text: 'Build for $500',
-                                    callback: () => {
-                                        socket.sendToServer({
-                                            type: 'build',
-                                            unit: unitType,
-                                            gameId: socket.gameData.gameId,
-                                            playerId: socket.gameData.playerId,
-                                            building: data.buildings[buildingId]
-                                        });
-                                    }
+                        let actions = [
+                            {
+                                text: 'Repair for $250',
+                                callback: () => {
+                                    socket.sendToServer({
+                                        type: 'repair',
+                                        gameId: socket.gameData.gameId,
+                                        playerId: socket.gameData.playerId,
+                                        buildingId: buildingId
+                                    });
                                 }
-                            ], buildingId), this);
+                            }
+                        ];
+
+                        if (unitType) {
+                            actions.push({
+                                text: 'Build for $500',
+                                callback: () => {
+                                    socket.sendToServer({
+                                        type: 'build',
+                                        unit: unitType,
+                                        gameId: socket.gameData.gameId,
+                                        playerId: socket.gameData.playerId,
+                                        building: data.buildings[buildingId]
+                                    });
+                                }
+                            });
+                        }
+
+                        if (data.buildings[buildingId].playerId == socket.gameData.playerId) {
+                            baseSprite.on('pointerdown', this.actionButton(actions, buildingId), this);
                         } else {
                             // Clear containers if we click the base since it has no actions
                             baseSprite.on('pointerdown', () => this.clearActionContainers());
                         }
 
-                        var baseText = this.add.text(-50, -50, 'Live: '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
+                        var baseText = this.add.text(-50, -50, 'Live '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
                         var baseContainer = this.add.container(
                             data.buildings[buildingId].x,
                             data.buildings[buildingId].y,
@@ -130,12 +157,23 @@ export default class GameScene extends Phaser.Scene {
                         );
                         this.physics.world.enable(baseContainer);
                         this.buildings[buildingId] = data.buildings[buildingId];
+                        this.buildings[buildingId].label = baseText;
 
                         if (this.buildings[buildingId].playerId == socket.gameData.playerId) {
                             this.cameras.main.scrollX = this.buildings[buildingId].x - 850;
                             this.cameras.main.scrollY = this.buildings[buildingId].y - 450;
                         }
                     }
+                }
+
+                if (!otherAliveBuilding) {
+                    clearInterval(this.fastInterval);
+                    clearInterval(this.slowInterval);
+                    this.scene.start('Victory');
+                } else if (destroyedCounter > 3) {
+                    clearInterval(this.fastInterval);
+                    clearInterval(this.slowInterval);
+                    this.scene.start('Loser');
                 }
 
                 this.moneyText.text = '$ ' + data.player.money;
@@ -176,7 +214,7 @@ export default class GameScene extends Phaser.Scene {
             }
         });
 
-        setInterval(() => {
+        this.fastInterval = setInterval(() => {
              let unitPositions = [];
 
              for (let unitId in this.units) {
@@ -195,7 +233,7 @@ export default class GameScene extends Phaser.Scene {
             this.physics.add.collider(this.units, this.units);
          }, 50);
 
-        setInterval(() => {
+        this.slowInterval = setInterval(() => {
             socket.sendToServer({
                 type: 'updateGame',
                 gameId: socket.gameData.gameId,
