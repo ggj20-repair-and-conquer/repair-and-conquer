@@ -44,7 +44,7 @@ wss.on('connection', function connection(ws) {
             ws.playerId = playerId;
             gameData[gameId].players[playerId] = {
                 name: msgObject.playerName,
-                money: 1000,
+                money: 500,
                 lastupdate: null,
             };
             sendToClient(ws, {type: 'joinGame', gameId: gameId, playerId: playerId, playerName: msgObject.playerName});
@@ -190,7 +190,7 @@ wss.on('connection', function connection(ws) {
             let currentTime = new Date().getTime();
             let delta = currentTime - gameData[gameId].players[playerId].lastupdate;
             gameData[gameId].players[playerId].lastupdate = currentTime;
-            gameData[gameId].players[playerId].money += Math.round(delta / 100);
+            gameData[gameId].players[playerId].money += Math.round(delta / 25);
 
             sendToClient(
                 ws,
@@ -212,11 +212,19 @@ wss.on('connection', function connection(ws) {
         } else if (msgObject.type == 'attackBuilding') {
             let gameId = msgObject.gameId;
             let buildingId = msgObject.buildingId;
+            let unitType = msgObject.unitType;
+            let dmg = 5;
 
-            if (gameData[gameId].buildings[buildingId].health - 10 <= 0) {
+            if (unitType == 'aircraft') {
+                dmg = 15;
+            } else if (unitType == 'tank') {
+                dmg = 10;
+            }
+
+            if (gameData[gameId].buildings[buildingId].health - dmg <= 0) {
                 gameData[gameId].buildings[buildingId].health = 0;
             } else {
-                gameData[gameId].buildings[buildingId].health = gameData[gameId].buildings[buildingId].health - 10;
+                gameData[gameId].buildings[buildingId].health = gameData[gameId].buildings[buildingId].health - dmg;
             }
         } else if (msgObject.type == 'repair') {
             let gameId = msgObject.gameId;
@@ -234,7 +242,14 @@ wss.on('connection', function connection(ws) {
             let gameId = msgObject.gameId;
             let playerId = msgObject.playerId;
             let building = msgObject.building;
-            let buildCosts = 500;
+            let unitType = msgObject.unit;
+            let buildCosts = 250;
+
+            if (unitType == 'aircraft') {
+                buildCosts = 1000;
+            } else if (unitType == 'tank') {
+                buildCosts = 650;
+            }
 
             if (gameData[gameId].players[playerId].money - buildCosts <= 0) {
                 return;

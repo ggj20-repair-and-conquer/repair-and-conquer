@@ -158,7 +158,7 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
                     type: 'attackBuilding',
                     gameId: socket.gameData.gameId,
                     buildingId: this.attackTarget.buildingId,
-                    unitType: this.unitType
+                    unitType: this.unitType,
                 });
                 this.currentCooldown += this.cooldown;
             }

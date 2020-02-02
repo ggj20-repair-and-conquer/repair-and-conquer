@@ -153,8 +153,18 @@ export default class GameScene extends Phaser.Scene {
                         ];
 
                         if (unitType) {
+                            let labelText;
+
+                            if (unitType == 'aircraft') {
+                                labelText =  'Build aircraft for $1000';
+                            } else if (unitType == 'tank') {
+                                labelText =  'Build tank for $650';
+                            } else if (unitType == 'soldier') {
+                                labelText =  'Build soldier for $250';
+                            }
+
                             actions.push({
-                                text: 'Build for $500',
+                                text: labelText,
                                 callback: () => {
                                     socket.sendToServer({
                                         type: 'build',
