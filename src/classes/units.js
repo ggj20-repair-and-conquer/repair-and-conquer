@@ -5,8 +5,9 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, texture);
         scene.add.existing(this);
         scene.physics.add.existing(this);
-        scene.physics.world.enableBody(this, 0);
+        scene.physics.world.enableBody(this);
         scene.events.on('update', (time, delta) => { this.update(time, delta)});
+        this.setActive(true);
 
         this.scene = scene;
         this.health = 100;
@@ -33,9 +34,10 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.targetY = 0;
         this.attackTarget = null;
         this.attackRadius = 10;
+        this.hitTimer = 0;
 
         //enable World bound collision and stop
-        this.body.setCollideWorldBounds(1);
+        this.body.setCollideWorldBounds(true);
         this.body.onWorldBounds = true;
         scene.physics.world.on('worldbounds', () => {
             this.body.reset(this.x, this.y);
@@ -65,7 +67,23 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.state = 1;
     }
 
+    detectCollition(w) {
+        this.hitTimer = 25;
+        let bounceX = this.body.bounce.x;
+        let bounceY = this.body.bounce.y;
+    }
+
     update(time, delta) {
+        if(this.hitTimer > 1) {
+            this.hitTimer--;
+        } else if (this.hitTimer == 1 ) {
+            this.body.reset(this.x, this.y);
+            this.scene.physics.moveTo(this, this.targetX, this.targetY, this.speed / 2);
+            this.setTarget(this.targetX, this.targetY);
+            this.hitTimer = 0;
+            this.state = 2;
+        }
+
         if(this.state == 2) {
             if(Phaser.Math.Distance.Between(this.x,this.y,this.targetX,this.targetY) < 4){
                 this.stopAction()
@@ -75,7 +93,7 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         if (this.state == 3 && this.attackTarget != null) {
             if(Phaser.Math.Distance.Between(this.x,this.y,this.attackTarget.x, this.attackTarget.y) > this.attackRadius){
                 this.setTarget(this.attackTarget.x,this.attackTarget.y);
-                this.scene.physics.moveTo(this.targetX,this.targetY, this.speed);
+                this.scene.physics.moveTo(this, this.targetX,this.targetY, this.speed);
                 this.state = 4;
             } else {
 

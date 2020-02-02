@@ -27,6 +27,8 @@ export default class GameScene extends Phaser.Scene {
 
         // The current id of the selected building, null if none selected
         this.selectedBuilding = null;
+
+        this.controllingSprites = [];
     }
 
     /**
@@ -129,11 +131,23 @@ export default class GameScene extends Phaser.Scene {
                         this.units[unitId].playerId = unit.playerId;
                         this.units[unitId].unitType = unit.type;
                         this.add.existing(this.units[unitId]);
+                        for (let val in this.units) {
+                            this.physics.add.collider(this.units[unitId], this.units[val], (a, b) => {
+                                if( a.state == 2) {
+                                    b.detectCollition();
+                                }
+                                if (b.state == 2) {
+                                    a.detectCollition();
+                                }
+                            });
+                        }
 
-                        this.physics.add.collider(this.units, this.RockLayer);
-                        this.physics.add.collider(this.units, this.TreeLayer1);
-                        this.physics.add.collider(this.units, this.TreeLayer2);
-                        this.physics.add.collider(this.units, this.TreeLayer3);
+                        this.physics.add.collider(this.units[unitId], this.RockLayer, () => {
+
+                        });
+                        this.physics.add.collider(this.units[unitId], this.TreeLayer1);
+                        this.physics.add.collider(this.units[unitId], this.TreeLayer2);
+                        this.physics.add.collider(this.units[unitId], this.TreeLayer3);
                     }
                 }
             } else if (data.type == 'updateUnitPositions') {
@@ -159,6 +173,8 @@ export default class GameScene extends Phaser.Scene {
                  playerId: socket.gameData.playerId,
                  positions: unitPositions
              });
+
+            this.physics.add.collider(this.units, this.units);
          }, 50);
 
         setInterval(() => {
@@ -167,6 +183,8 @@ export default class GameScene extends Phaser.Scene {
                 gameId: socket.gameData.gameId,
                 playerId: socket.gameData.playerId
             });
+
+            this.physics.add.collider(this.units, this.units);
         }, 2000);
     }
 
@@ -268,7 +286,6 @@ export default class GameScene extends Phaser.Scene {
         /*
          * Selector for units
          */
-
         this.input.on('pointerdown', (pointer) => {
             if (pointer.leftButtonDown()) {
                 if (this.rectGraphics !== null && typeof this.rectGraphics !== typeof undefined) {
@@ -318,7 +335,9 @@ export default class GameScene extends Phaser.Scene {
                     );
 
                     findUnits.forEach((body) => {
-                        if (typeof body.gameObject.unitType !== typeof undefined) {
+                        if (typeof body.gameObject.unitType !== typeof undefined
+                            && body.gameObject.playerId == socket.gameData.playerId
+                        ) {
                             this.selectedUnits.push(body.gameObject);
                         }
                     });
