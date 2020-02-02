@@ -98,49 +98,49 @@ wss.on('connection', function connection(ws) {
 
             let buildingPositions = [];
             buildingPositions[1] = [];
-            buildingPositions[1][0] = [450, 390];
+            buildingPositions[1][0] = [600, 590];
             buildingPositions[1][1] = [300, 300];
             buildingPositions[1][2] = [540, 300];
             buildingPositions[1][3] = [300, 510];
 
             buildingPositions[2] = [];
-            buildingPositions[2][0] = [1460, 390];
+            buildingPositions[2][0] = [1600, 590];
             buildingPositions[2][1] = [1320, 300];
             buildingPositions[2][2] = [1620, 300];
             buildingPositions[2][3] = [1320, 510];
 
             buildingPositions[3] = [];
-            buildingPositions[3][0] = [2330, 390];
+            buildingPositions[3][0] = [2500, 590];
             buildingPositions[3][1] = [2190, 300];
             buildingPositions[3][2] = [2520, 300];
             buildingPositions[3][3] = [2190, 510];
 
             buildingPositions[4] = [];
-            buildingPositions[4][0] = [2460, 1470];
+            buildingPositions[4][0] = [2600, 1670];
             buildingPositions[4][1] = [2310, 1380];
             buildingPositions[4][2] = [2610, 1380];
             buildingPositions[4][3] = [2310, 1590];
 
             buildingPositions[5] = [];
-            buildingPositions[5][0] = [2510, 2460];
+            buildingPositions[5][0] = [2650, 2660];
             buildingPositions[5][1] = [2370, 2370];
             buildingPositions[5][2] = [2670, 2370];
             buildingPositions[5][3] = [2370, 2580];
 
             buildingPositions[6] = [];
-            buildingPositions[6][0] = [1470, 2460];
+            buildingPositions[6][0] = [1600, 2660];
             buildingPositions[6][1] = [1320, 2370];
             buildingPositions[6][2] = [1620, 2370];
             buildingPositions[6][3] = [1320, 2580];
 
             buildingPositions[7] = [];
-            buildingPositions[7][0] = [570, 2490];
+            buildingPositions[7][0] = [700, 2690];
             buildingPositions[7][1] = [420, 2400];
             buildingPositions[7][2] = [720, 2400];
             buildingPositions[7][3] = [420, 2610];
 
             buildingPositions[8] = [];
-            buildingPositions[8][0] = [480, 1500];
+            buildingPositions[8][0] = [600, 1700];
             buildingPositions[8][1] = [330, 1410];
             buildingPositions[8][2] = [630, 1410];
             buildingPositions[8][3] = [330, 1590];
@@ -212,16 +212,16 @@ wss.on('connection', function connection(ws) {
             let gameId = msgObject.gameId;
             let buildingId = msgObject.buildingId;
 
-            if (gameData[gameId].buildings[buildingId].health - 20 <= 0) {
+            if (gameData[gameId].buildings[buildingId].health - 10 <= 0) {
                 gameData[gameId].buildings[buildingId].health = 0;
             } else {
-                gameData[gameId].buildings[buildingId].health = gameData[gameId].buildings[buildingId].health - 20;
+                gameData[gameId].buildings[buildingId].health = gameData[gameId].buildings[buildingId].health - 10;
             }
         } else if (msgObject.type == 'repair') {
             let gameId = msgObject.gameId;
             let playerId = msgObject.playerId;
             let buildingId = msgObject.buildingId;
-            let buildCosts = 250;
+            let buildCosts = 100;
 
             if (gameData[gameId].players[playerId].money - buildCosts <= 0) {
                 return;

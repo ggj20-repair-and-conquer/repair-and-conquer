@@ -47,6 +47,8 @@ export default class GameScene extends Phaser.Scene {
 
         this.load.image('base', 'assets/base.png');
         this.load.image('factory', 'assets/factory.png');
+        this.load.image('base_damaged', 'assets/base_damaged.png');
+        this.load.image('factory_damaged', 'assets/factory_damaged.png');
         this.load.image('barracks', 'assets/barracks.png');
         this.load.image('airbase', 'assets/airbase.png');
 
@@ -90,6 +92,14 @@ export default class GameScene extends Phaser.Scene {
                             }
                         }
 
+                        if (data.buildings[buildingId].health < 50) {
+                            if (data.buildings[buildingId].type == 'base') {
+                                this.buildings[buildingId].sprites.setTexture('base_damaged');
+                            } else if (data.buildings[buildingId].type == 'factory') {
+                                this.buildings[buildingId].sprites.setTexture('factory_damaged');
+                            }
+                        }
+
                         this.buildings[buildingId].health = data.buildings[buildingId].health;
                     } else {
                         let buildType = data.buildings[buildingId].type;
@@ -117,7 +127,7 @@ export default class GameScene extends Phaser.Scene {
 
                         let actions = [
                             {
-                                text: 'Repair for $250',
+                                text: 'Repair for $100',
                                 callback: () => {
                                     socket.sendToServer({
                                         type: 'repair',
@@ -171,6 +181,7 @@ export default class GameScene extends Phaser.Scene {
                         this.physics.world.enable(baseContainer);
                         this.buildings[buildingId] = data.buildings[buildingId];
                         this.buildings[buildingId].label = baseText;
+                        this.buildings[buildingId].sprites = baseSprite;
 
                         if (this.buildings[buildingId].playerId == socket.gameData.playerId) {
                             this.cameras.main.scrollX = this.buildings[buildingId].x - 850;
