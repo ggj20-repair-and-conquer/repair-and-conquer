@@ -186,11 +186,23 @@ wss.on('connection', function connection(ws) {
             let gameId = msgObject.gameId;
             let buildingId = msgObject.buildingId;
 
-            if (gameData[gameId].buildings[buildingId] - 16 <= 0) {
+            if (gameData[gameId].buildings[buildingId] - 20 <= 0) {
                 gameData[gameId].buildings[buildingId].health = 0;
             } else {
-                gameData[gameId].buildings[buildingId].health = gameData[gameId].buildings[buildingId] - 16;
+                gameData[gameId].buildings[buildingId].health = gameData[gameId].buildings[buildingId].health - 20;
             }
+        } else if (msgObject.type == 'repair') {
+            let gameId = msgObject.gameId;
+            let playerId = msgObject.playerId;
+            let buildingId = msgObject.buildingId;
+            let buildCosts = 250;
+
+            if (gameData[gameId].players[playerId].money - buildCosts <= 0) {
+                return;
+            }
+
+            gameData[gameId].buildings[buildingId].health = Math.min(gameData[gameId].buildings[buildingId].health + 20, 100);
+            gameData[gameId].players[playerId].money = gameData[gameId].players[playerId].money - buildCosts;
         } else if (msgObject.type == 'build') {
             let gameId = msgObject.gameId;
             let playerId = msgObject.playerId;
