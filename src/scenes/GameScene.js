@@ -176,7 +176,7 @@ export default class GameScene extends Phaser.Scene {
                             let labelText;
 
                             if (unitType == 'aircraft') {
-                                labelText =  'Build aircraft for $1000';
+                                labelText =  'Build aircraft for $1200';
                             } else if (unitType == 'tank') {
                                 labelText =  'Build tank for $650';
                             } else if (unitType == 'soldier') {
