@@ -439,8 +439,8 @@ export default class GameScene extends Phaser.Scene {
             this.clearActionContainers();
             // Use a container so we can destroy all UI elements with one call.
             let actionContainer = this.add.container(
-                pointer.x,
-                pointer.y
+                this.aim.x,
+                this.aim.y
             );
             this.actionContainers.push(actionContainer);
             actions.forEach((action, index) => {
