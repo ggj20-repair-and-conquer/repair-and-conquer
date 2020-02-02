@@ -152,6 +152,12 @@ export default class GameScene extends Phaser.Scene {
                             }
                         ];
 
+                        this.input.keyboard.on('keydown_SPACE', (event) => {
+                            this.cameras.main.startFollow(this.player);
+                            this.aim.x = this.player.x;
+                            this.aim.y = this.player.y;
+                        });
+
                         if (unitType) {
                             let labelText;
 
@@ -235,6 +241,7 @@ export default class GameScene extends Phaser.Scene {
                         this.units[unitId] = new Unit(that, unit.x, unit.y, unit.type);
                         this.units[unitId].playerId = unit.playerId;
                         this.units[unitId].unitType = unit.type;
+                        this.units[unitId].setSpeed(unit.type);
                         this.add.existing(this.units[unitId]);
                         for (let val in this.units) {
                             this.physics.add.collider(this.units[unitId], this.units[val], (a, b) => {
