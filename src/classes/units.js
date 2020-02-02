@@ -47,6 +47,20 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
             this.body.reset(this.x, this.y);
             this.state = 1;
         });
+
+        switch(this.unitType) {
+            case "soldier":
+                this.speed = 50;
+                break;
+            case "tanke":
+                this.speed = 75;
+                break;
+            case "aircraft":
+                this.speed = 150;
+                break;
+            default:
+                this.speed = 50;
+        }
     }
 
 
@@ -111,7 +125,7 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
             this.hitTimer--;
         } else if (this.hitTimer == 1 ) {
             this.body.reset(this.x, this.y);
-            this.scene.physics.moveTo(this, this.targetX, this.targetY, this.speed / 2);
+            this.scene.physics.moveTo(this, this.targetX, this.targetY, this.speed);
             this.calcDirectionSprite();
             this.setTarget(this.targetX, this.targetY);
             this.hitTimer = 0;
@@ -145,6 +159,7 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
                     type: 'attackBuilding',
                     gameId: socket.gameData.gameId,
                     buildingId: this.attackTarget.buildingId,
+                    unitType: this.unitType
                 });
                 this.currentCooldown += this.cooldown;
             }
