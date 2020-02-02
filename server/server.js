@@ -186,7 +186,7 @@ wss.on('connection', function connection(ws) {
             let gameId = msgObject.gameId;
             let buildingId = msgObject.buildingId;
 
-            if (gameData[gameId].buildings[buildingId] - 20 <= 0) {
+            if (gameData[gameId].buildings[buildingId].health - 20 <= 0) {
                 gameData[gameId].buildings[buildingId].health = 0;
             } else {
                 gameData[gameId].buildings[buildingId].health = gameData[gameId].buildings[buildingId].health - 20;
