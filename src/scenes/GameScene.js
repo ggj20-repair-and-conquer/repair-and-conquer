@@ -428,16 +428,6 @@ export default class GameScene extends Phaser.Scene {
             }
         }, this);
 
-        this.input.keyboard.on('keydown_Q', (pointer) => {
-           this.test = this.physics.add.sprite(this.aim.x, this.aim.y, 'soldier');
-           this.RockLayer.setCollisionByProperty({'collides': true});
-           this.physics.add.collider(this.test, this.RockLayer);
-        });
-
-        this.input.keyboard.on('keydown_W', (pointer) => {
-            this.physics.moveTo(this.test, this.aim.x, this.aim.y, 200);
-        });
-
         this.input.on('pointerup', (pointer) => {
             if (pointer.leftButtonReleased()) {
                 if (this.rect !== null) {
