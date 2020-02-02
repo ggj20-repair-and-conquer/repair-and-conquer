@@ -125,6 +125,16 @@ export default class GameScene extends Phaser.Scene {
                             } else if (data.buildings[buildingId].type == 'barracks') {
                                 this.buildings[buildingId].sprites.setTexture('barracks_damaged');
                             }
+                        } else {
+                            if (data.buildings[buildingId].type == 'base') {
+                                this.buildings[buildingId].sprites.setTexture('base');
+                            } else if (data.buildings[buildingId].type == 'factory') {
+                                this.buildings[buildingId].sprites.setTexture('factory');
+                            } else if (data.buildings[buildingId].type == 'airbase') {
+                                this.buildings[buildingId].sprites.setTexture('airbase');
+                            } else if (data.buildings[buildingId].type == 'barracks') {
+                                this.buildings[buildingId].sprites.setTexture('barracks');
+                            }
                         }
 
                         this.buildings[buildingId].health = data.buildings[buildingId].health;
