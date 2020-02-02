@@ -162,7 +162,8 @@ export default class GameScene extends Phaser.Scene {
                             if (pointer.rightButtonDown()) {
                                 if (data.buildings[buildingId].playerId != socket.gameData.playerId) {
                                     this.selectedUnits.forEach((unit) => {
-                                        unit.target = baseSprite;
+                                        data.buildings[buildingId].buildingId = buildingId;
+                                        unit.startMoveToAttack(data.buildings[buildingId]);
                                     });
                                 }
                             }
@@ -276,7 +277,6 @@ export default class GameScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown_SPACE', (event) => {
             this.lockMovement = !this.lockMovement;
-            console.log(this.buildings);
         });
       
         /*
@@ -424,11 +424,13 @@ export default class GameScene extends Phaser.Scene {
             }
         }, this);
 
-        this.input.on('pointerdown', (pointer) => {
+        this.input.on('pointerdown', (pointer, gameObject) => {
            if (pointer.rightButtonDown()) {
-               this.selectedUnits.forEach((unit) => {
-                   unit.startMove(this, this.aim.x,this.aim.y);
-               });
+               if (Object.keys(gameObject).length === 0) {
+                   this.selectedUnits.forEach((unit) => {
+                       unit.startMove(this, this.aim.x,this.aim.y);
+                   });
+               }
            }
         });
 

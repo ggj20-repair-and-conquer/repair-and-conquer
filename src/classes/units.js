@@ -9,6 +9,7 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         scene.events.on('update', (time, delta) => { this.update(time, delta)});
         this.setActive(true);
 
+        this.attackCallback = null;
         this.scene = scene;
         this.health = 100;
         this.speed = 200;
@@ -35,6 +36,9 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.attackTarget = null;
         this.attackRadius = 100;
         this.hitTimer = 0;
+        // Cooldown in milliseconds
+        this.cooldown = 1000;
+        this.currentCooldown = this.cooldown;
 
         //enable World bound collision and stop
         this.body.setCollideWorldBounds(true);
@@ -53,13 +57,15 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
 
     startMove(w, x, y) {
         this.setTarget(x, y);
+        console.log("move to");
         this.state = 2;
         w.physics.moveTo(this, x, y, this.speed);
         this.attackTarget = null;
     }
 
     startMoveToAttack(target) {
-        this.state = 4;
+        console.log("ATTACK!");
+        this.state = 3;
         this.attackTarget = target;
     }
 
@@ -77,9 +83,6 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         this.hitTimer = 25;
         let bounceX = this.body.bounce.x;
         let bounceY = this.body.bounce.y;
-
-        console.log("X: " + this.body.bounce.x);
-        console.log("Y: " + this.body.bounce.y);
 
         if (Math.abs(bounceX) > Math.abs(bounceY)) {
             this.body.setBounce(0, bounceX * -1);
@@ -117,7 +120,17 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
 
         //attack
         if (this.state == 4 && this.attackTarget != null) {
-            console.log("do some dmgio");
+            if(this.currentCooldown >= 0) {
+                this.currentCooldown -= delta;
+            } else {
+                console.log("Bier her Bier her");
+                socket.sendToServer({
+                    type: 'attackBuilding',
+                    gameId: socket.gameData.gameId,
+                    buildingId: this.attackTarget.buildingId,
+                });
+                this.currentCooldown += this.cooldown;
+            }
         }
     }
 }
