@@ -185,7 +185,9 @@ export default class GameScene extends Phaser.Scene {
                             }
                         })
 
-                        var baseText = this.add.text(-100, -100, 'Live '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
+                        var baseText = this.add.text(-100, -100, 'Live '+data.buildings[buildingId].health, {
+                            font: '14px Courier', fill: '#fff', align: 'center'
+                        }).setBackgroundColor('#2D3C2C');
                         var baseContainer = this.add.container(
                             data.buildings[buildingId].x,
                             data.buildings[buildingId].y,
