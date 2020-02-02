@@ -149,7 +149,17 @@ export default class GameScene extends Phaser.Scene {
                             baseSprite.on('pointerdown', () => this.clearActionContainers());
                         }
 
-                        var baseText = this.add.text(-50, -50, 'Live '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
+                        baseSprite.on('pointerdown', (pointer) => {
+                            if (pointer.rightButtonDown()) {
+                                if (data.buildings[buildingId].playerId != socket.gameData.playerId) {
+                                    this.selectedUnits.forEach((unit) => {
+                                        unit.target = baseSprite;
+                                    });
+                                }
+                            }
+                        })
+
+                        var baseText = this.add.text(-100, -100, 'Live '+data.buildings[buildingId].health, {font: '12px Courier', fill: '#fff'}).setBackgroundColor('#00A66E');
                         var baseContainer = this.add.container(
                             data.buildings[buildingId].x,
                             data.buildings[buildingId].y,
