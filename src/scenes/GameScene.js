@@ -78,7 +78,9 @@ export default class GameScene extends Phaser.Scene {
 
             } else if (data.type == 'updateGame') {
                 for (let buildingId in data.buildings) {
-                    if (!this.buildings[buildingId]) {
+                    if (this.buildings[buildingId]) {
+
+                    } else {
                         let buildType = data.buildings[buildingId].type;
                         let unitType = '';
 
@@ -93,7 +95,7 @@ export default class GameScene extends Phaser.Scene {
                         let baseSprite = this.physics.add.sprite(0, 0, buildType);
                         baseSprite.setInteractive();
 
-                        if (unitType) {
+                        if (unitType && data.buildings[buildingId].playerId == socket.gameData.playerId) {
                             baseSprite.on('pointerdown', this.actionButton([
                                 {
                                     text: 'Build',
@@ -102,7 +104,8 @@ export default class GameScene extends Phaser.Scene {
                                             type: 'build',
                                             unit: unitType,
                                             gameId: socket.gameData.gameId,
-                                            playerId: socket.gameData.playerId
+                                            playerId: socket.gameData.playerId,
+                                            building: data.buildings[buildingId]
                                         });
                                     }
                                 }
@@ -120,10 +123,16 @@ export default class GameScene extends Phaser.Scene {
                         );
                         this.physics.world.enable(baseContainer);
                         this.buildings[buildingId] = data.buildings[buildingId];
+
+                        if (this.buildings[buildingId].playerId == socket.gameData.playerId) {
+                            this.cameras.main.scrollX = this.buildings[buildingId].x - 850;
+                            this.cameras.main.scrollY = this.buildings[buildingId].y - 450;
+                        }
                     }
                 }
 
                 this.moneyText.text = '$ ' + data.player.money;
+                socket.gameData.playerMoney = data.player.money;
             } else if (data.type == 'updateUnits') {
                 for (let unitId in data.units) {
                     let unit = data.units[unitId];
@@ -133,11 +142,6 @@ export default class GameScene extends Phaser.Scene {
                         this.units[unitId].playerId = unit.playerId;
                         this.units[unitId].unitType = unit.type;
                         this.add.existing(this.units[unitId]);
-
-                        this.physics.add.collider(this.units, this.RockLayer);
-                        this.physics.add.collider(this.units, this.TreeLayer1);
-                        this.physics.add.collider(this.units, this.TreeLayer2);
-                        this.physics.add.collider(this.units, this.TreeLayer3);
                     }
                 }
             } else if (data.type == 'updateUnitPositions') {
@@ -350,19 +354,6 @@ export default class GameScene extends Phaser.Scene {
                 this.actionContainerOpen = false;
             }
         });
-
-        /*
-         * Overlay
-         */
-
-        /*
-        socket.sendToServer({
-            type: 'build',
-            unit: 'tank',
-            gameId: socket.gameData.gameId,
-            playerId: socket.gameData.playerId
-        });
-         */
 
 
         this.moneyText = this.add.text(0, 0, "Money!", {

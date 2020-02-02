@@ -109,20 +109,32 @@ wss.on('connection', function connection(ws) {
 
                     if (localPlayerCounter == 1) {
                         if (index == 0) {
-                            x = 150;
-                            y = 100;
+                            x = 200;
+                            y = 200;
                         } else if (index == 1) {
                             x = 250;
-                            y = 100;
+                            y = 200;
                         } else if (index == 2) {
-                            x = 250;
-                            y = 200;
+                            x = 200;
+                            y = 300;
                         } else if (index == 3) {
-                            x = 150;
-                            y = 200;
+                            x = 250;
+                            y = 350;
                         }
                     } else if (localPlayerCounter == 2) {
-
+                        if (index == 0) {
+                            x = 800;
+                            y = 800;
+                        } else if (index == 1) {
+                            x = 850;
+                            y = 800;
+                        } else if (index == 2) {
+                            x = 800;
+                            y = 900;
+                        } else if (index == 3) {
+                            x = 850;
+                            y = 950;
+                        }
                     } else if (localPlayerCounter == 3) {
                     }
 
@@ -170,17 +182,25 @@ wss.on('connection', function connection(ws) {
         } else if (msgObject.type == 'build') {
             let gameId = msgObject.gameId;
             let playerId = msgObject.playerId;
+            let building = msgObject.building;
+            let buildCosts = 500;
+
+            if (gameData[gameId].players[playerId].money - buildCosts <= 0) {
+                return;
+            }
 
             unitCounter++;
             let unitId = 'A' + randomNumber() + '' + unitCounter;
 
             gameData[gameId].units[unitId] = {
-                x: 200,
-                y: 200,
+                x: building.x,
+                y: building.y,
                 playerId: playerId,
                 health: 100,
                 type: msgObject.unit
             };
+
+            gameData[gameId].players[playerId].money = gameData[gameId].players[playerId].money - buildCosts;
 
             wss.clients.forEach(function each(client) {
                 if (gameData[gameId].players[client.playerId]) {

@@ -12,7 +12,7 @@ let socket = {
         };
 
         this.ws.onclose = function() {
-            alert('server not running, please start server!');
+            location.reload();
         }
     },
     sendToServer(data) {
