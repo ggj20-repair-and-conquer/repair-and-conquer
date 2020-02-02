@@ -49,6 +49,9 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('factory', 'assets/factory.png');
         this.load.image('base_damaged', 'assets/base_damaged.png');
         this.load.image('factory_damaged', 'assets/factory_damaged.png');
+        this.load.image('airbase_damaged', 'assets/airbase_damaged.png');
+        this.load.image('barracks_damaged', 'assets/barracks_damaged.png');
+
         this.load.image('barracks', 'assets/barracks.png');
         this.load.image('airbase', 'assets/airbase.png');
 
@@ -97,6 +100,10 @@ export default class GameScene extends Phaser.Scene {
                                 this.buildings[buildingId].sprites.setTexture('base_damaged');
                             } else if (data.buildings[buildingId].type == 'factory') {
                                 this.buildings[buildingId].sprites.setTexture('factory_damaged');
+                            } else if (data.buildings[buildingId].type == 'airbase') {
+                                this.buildings[buildingId].sprites.setTexture('airbase_damaged');
+                            } else if (data.buildings[buildingId].type == 'barracks') {
+                                this.buildings[buildingId].sprites.setTexture('barracks_damaged');
                             }
                         }
 
