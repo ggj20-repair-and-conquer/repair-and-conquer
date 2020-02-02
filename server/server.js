@@ -47,7 +47,7 @@ wss.on('connection', function connection(ws) {
                 money: 1000,
                 lastupdate: null,
             };
-            sendToClient(ws, {type: 'joinGame', gameId: gameId, playerId: playerId});
+            sendToClient(ws, {type: 'joinGame', gameId: gameId, playerId: playerId, playerName: msgObject.playerName});
         } else if (msgObject.type == 'listGames') {
             let games = [];
 
@@ -169,6 +169,7 @@ wss.on('connection', function connection(ws) {
                         y: y,
                         type: buildingType,
                         playerId: playerId,
+                        playerName: gameData[gameId].players[playerId].name,
                         health: 100
                     };
                 });

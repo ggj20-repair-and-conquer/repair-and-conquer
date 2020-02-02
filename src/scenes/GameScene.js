@@ -89,7 +89,7 @@ export default class GameScene extends Phaser.Scene {
 
                 for (let buildingId in data.buildings) {
                     if (this.buildings[buildingId]) {
-                        this.buildings[buildingId].label.text = 'Live ' + data.buildings[buildingId].health;
+                        this.buildings[buildingId].label.text = '[' + data.buildings[buildingId].playerName + '] ' + data.buildings[buildingId].health;
 
                         if (data.buildings[buildingId].playerId == socket.gameData.playerId) {
                             if (data.buildings[buildingId].health <= 0) {
@@ -185,7 +185,7 @@ export default class GameScene extends Phaser.Scene {
                             }
                         })
 
-                        var baseText = this.add.text(-100, -100, 'Live '+data.buildings[buildingId].health, {
+                        var baseText = this.add.text(-100, -100, 'Live ' + socket.gameData.player + data.buildings[buildingId].health, {
                             font: '14px Courier', fill: '#fff', align: 'center'
                         }).setBackgroundColor('#2D3C2C');
                         var baseContainer = this.add.container(
