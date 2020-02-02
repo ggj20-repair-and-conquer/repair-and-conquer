@@ -107,43 +107,43 @@ wss.on('connection', function connection(ws) {
             buildingPositions[8][0] = [1600, 590];
             buildingPositions[8][1] = [1320, 300];
             buildingPositions[8][2] = [1620, 300];
-            buildingPositions[8][3] = [1320, 510];
+            buildingPositions[8][3] = [1300, 510];
 
             buildingPositions[3] = [];
             buildingPositions[3][0] = [2500, 590];
             buildingPositions[3][1] = [2190, 300];
             buildingPositions[3][2] = [2520, 300];
-            buildingPositions[3][3] = [2190, 510];
+            buildingPositions[3][3] = [2100, 510];
 
             buildingPositions[7] = [];
             buildingPositions[7][0] = [2600, 1670];
             buildingPositions[7][1] = [2310, 1380];
             buildingPositions[7][2] = [2610, 1380];
-            buildingPositions[7][3] = [2310, 1590];
+            buildingPositions[7][3] = [2300, 1590];
 
             buildingPositions[5] = [];
             buildingPositions[5][0] = [2650, 2660];
             buildingPositions[5][1] = [2370, 2370];
             buildingPositions[5][2] = [2670, 2370];
-            buildingPositions[5][3] = [2370, 2580];
+            buildingPositions[5][3] = [2300, 2580];
 
             buildingPositions[6] = [];
             buildingPositions[6][0] = [1600, 2660];
             buildingPositions[6][1] = [1320, 2370];
             buildingPositions[6][2] = [1620, 2370];
-            buildingPositions[6][3] = [1320, 2580];
+            buildingPositions[6][3] = [1300, 2580];
 
             buildingPositions[4] = [];
             buildingPositions[4][0] = [700, 2690];
             buildingPositions[4][1] = [420, 2400];
             buildingPositions[4][2] = [720, 2400];
-            buildingPositions[4][3] = [420, 2610];
+            buildingPositions[4][3] = [400, 2610];
 
             buildingPositions[2] = [];
             buildingPositions[2][0] = [600, 1700];
             buildingPositions[2][1] = [330, 1410];
             buildingPositions[2][2] = [630, 1410];
-            buildingPositions[2][3] = [330, 1590];
+            buildingPositions[2][3] = [300, 1590];
 
 
 

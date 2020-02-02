@@ -176,12 +176,6 @@ export default class GameScene extends Phaser.Scene {
                             }
                         ];
 
-                        this.input.keyboard.on('keydown_SPACE', (event) => {
-                            this.cameras.main.startFollow(this.player);
-                            this.aim.x = this.player.x;
-                            this.aim.y = this.player.y;
-                        });
-
                         if (unitType) {
                             let labelText;
 
