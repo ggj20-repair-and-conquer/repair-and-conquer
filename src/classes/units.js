@@ -47,12 +47,15 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
             this.body.reset(this.x, this.y);
             this.state = 1;
         });
+    }
 
-        switch(this.unitType) {
+
+    setSpeed(unitType) {
+        switch(unitType) {
             case "soldier":
                 this.speed = 50;
                 break;
-            case "tanke":
+            case "tank":
                 this.speed = 75;
                 break;
             case "aircraft":
@@ -63,7 +66,6 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-
     setTarget(x, y) {
         this.targetX = x;
         this.targetY = y;
@@ -71,7 +73,6 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
 
     startMove(w, x, y) {
         this.setTarget(x, y);
-        console.log("move to");
         this.state = 2;
         w.physics.moveTo(this, x, y, this.speed);
         this.attackTarget = null;
@@ -79,7 +80,6 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
     }
 
     startMoveToAttack(target) {
-        console.log("ATTACK!");
         this.state = 3;
         this.attackTarget = target;
     }
@@ -154,7 +154,6 @@ export class Unit extends Phaser.Physics.Arcade.Sprite {
             if(this.currentCooldown >= 0) {
                 this.currentCooldown -= delta;
             } else {
-                console.log("Bier her Bier her");
                 socket.sendToServer({
                     type: 'attackBuilding',
                     gameId: socket.gameData.gameId,
