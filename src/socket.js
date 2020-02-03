@@ -12,7 +12,7 @@ let socket = {
         };
 
         this.ws.onclose = function() {
-            location.reload();
+            alert('Server is gone. We have to restart him.');
         }
     },
     sendToServer(data) {
